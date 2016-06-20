@@ -34,8 +34,6 @@ def get_course_progress(request):
     course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
     course = get_course_by_id(course_key)
 
-    student_module_history = StudentModule.objects.filter(student_id=student_id, course_id=course_key)
-
     for section in course.get_children():
         if not section.visible_to_staff_only and section.start < timezone.now():
             sub_sections = OrderedDict()
@@ -53,7 +51,8 @@ def get_course_progress(request):
                                             component_count += 1
 
                                             try:
-                                                history = StudentModule.objects.get(module_state_key=component.location, module_type=component.category)
+                                                history = StudentModule.objects.get(module_state_key=component.location,
+                                                    student_id=student_id, course_id=course_key, module_type=component.category)
                                             except:
                                                 history = None
 
