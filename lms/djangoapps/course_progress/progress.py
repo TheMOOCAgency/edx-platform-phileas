@@ -1,3 +1,4 @@
+import json
 from collections import OrderedDict
 
 from django.utils import timezone
@@ -51,9 +52,16 @@ def get_course_progress(request):
                                     if component.category in include_items:
                                             component_count += 1
 
-                                            history = student_module_history.filter(module_state_key=component.location, module_type=component.category)
+                                            try:
+                                                history = StudentModule.objects.get(module_state_key=component.location, module_type=component.category)
+                                            except:
+                                                history = None
+
                                             if history:
-                                                component_attempted +=1
+                                                if component.category == 'problem' and json.loads(history.state).get('attempts', 0):
+                                                    component_attempted +=1
+                                                elif component.category == 'video' and is_played(json.loads(history.state).get('saved_video_position', '00:00:00')):
+                                                    component_attempted +=1
 
                             unit_progress = round(component_attempted * 100.00 / component_count, 2)
                             if unit_progress == 100:
@@ -83,3 +91,6 @@ def get_course_progress(request):
     })
 
     return JsonResponse(progress)
+
+def is_played(time_str):
+    return sum(map(int, time_str.split(':'))) > 0
