@@ -1022,3 +1022,13 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
             name='submit_financial_assistance_request'
         )
     )
+
+# To get course progress on AJAX call
+if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
+    urlpatterns += (
+        url(
+            r'^course_progress/',
+            'course_progress.progress.get_course_progress',
+            name='get_course_progress'
+        ),
+    )
