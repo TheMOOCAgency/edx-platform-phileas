@@ -7,6 +7,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
 
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
+from openassessment.workflow.models import AssessmentWorkflow
+
 from courseware.courses import get_course_by_id
 from courseware.models import StudentModule
 from course_progress.models import StudentHistory
@@ -26,7 +28,7 @@ def get_course_progress(request):
     Author: Naresh Makwana
     """
     progress = {}
-    include_items = ['video', 'problem', 'html']
+    include_items = ['video', 'problem', 'html', 'openassessment']
     sections = OrderedDict()
 
     course_id = request.GET.get('course_id')
@@ -104,6 +106,12 @@ def is_attempted(student_id, course_key, component):
         attempted = 1
     elif component.category == 'html' and get_component_done(component.location, student_id, course_key, component.category):
         attempted = 1
+    elif component.category == 'openassessment':
+        submission_uuid = state.get('submission_uuid')
+        course_id = course_key.to_deprecated_string()
+        item_id = component.location.to_deprecated_string()
+        if submission_uuid and is_assessed(course_id, item_id, submission_uuid):
+            attempted = 1
 
     return attempted
 
@@ -115,6 +123,14 @@ def get_component_state(module_state_key, student_id, course_key, module_type):
         history = None
     
     return json.loads(history.state) if history and history.state else {}
+
+def is_assessed(course_id, item_id, submission_uuid):
+    try:
+        workflow = AssessmentWorkflow.objects.get(course_id=course_id, item_id=item_id, submission_uuid=submission_uuid)
+    except:
+        return False
+
+    return workflow.status == 'done'
 
 def get_component_done(module_state_key, student_id, course_key, module_type):
     try:
