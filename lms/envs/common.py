@@ -2074,6 +2074,9 @@ INSTALLED_APPS = (
 
     # Email marketing integration
     'email_marketing',
+
+    # coure progress
+    'course_progress',
 )
 
 # Migrations which are not in the standard module "migrations"
