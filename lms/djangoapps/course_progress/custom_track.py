@@ -47,16 +47,17 @@ def track_html_component(request):
     return JsonResponse({'success': True})
 
 
-def track_hints(student, course_key, usage_key):
+def track_custom_event(student, course_key, instance):
     """
     Stores the courseware student history that is not by default tracked.
-    i.e. problem hints
+    i.e. problem hints, LTI grade events, etc.
 
     Author: Naresh Makwana
     """
     StudentHistory.objects.get_or_create(
         student=student,
         course_id=course_key,
-        module_state_key=usage_key,
+        module_state_key=instance.location,
+        module_type=instance.category,
         done='f',
     )
