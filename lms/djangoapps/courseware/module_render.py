@@ -1052,7 +1052,7 @@ def _invoke_xblock_handler(request, course_id, usage_id, handler, suffix, course
             track_custom_event(request.user, course_key, instance)
         elif suffix == 'lti_2_0_result_rest_handler':
             track_custom_event(request.user, course_key, instance)
-        elif suffix == 'grade_handler' and 'lti+block' in usage_id:
+        elif suffix == 'grade_handler' and ('lti+block' in usage_id or 'lti_consumer+block' in usage_id):
             track_custom_event(request.user, course_key, instance)
 
         # Name the transaction so that we can view XBlock handlers separately in
