@@ -9,56 +9,44 @@ file and check it in at the same time as your model changes. To do that,
 3. Add the migration file created in edx-platform/lms/djangoapps/course_progress/migrations/
 
 """
+import json
+
 from django.contrib.auth.models import User
 from django.db import models
 
+from model_utils.models import TimeStampedModel
+from util.models import CompressedTextField
 from xmodule_django.models import CourseKeyField, LocationKeyField
 
-
-class StudentHistory(models.Model):
+class StudentCourseProgress(TimeStampedModel):
     """
-    Keeps student state for a particular module in a particular course.
+    Keeps course wise student course progress.
     """
-    MODEL_TAGS = ['course_id', 'module_type']
-
-    # For a homework problem, contains a JSON
-    # object consisting of state
-    MODULE_TYPES = (('problem', 'problem'),
-                    ('video', 'video'),
-                    ('html', 'html'),
-                    ('course', 'course'),
-                    ('chapter', 'Section'),
-                    ('sequential', 'Subsection'),
-                    ('library_content', 'Library Content'))
-    ## These three are the key for the object
-    module_type = models.CharField(max_length=32, choices=MODULE_TYPES, default='problem', db_index=True)
-
-    # Key used to share state. This is the XBlock usage_id
-    module_state_key = LocationKeyField(max_length=255, db_index=True, db_column='module_id')
-    student = models.ForeignKey(User, db_index=True)
-
-    course_id = CourseKeyField(max_length=255, db_index=True)
-
     class Meta(object):
         app_label = "course_progress"
-        unique_together = (('student', 'module_state_key', 'course_id'),)
 
-    DONE_TYPES = (
-        ('f', 'FINISHED'),
-        ('i', 'INCOMPLETE'),
-    )
-    done = models.CharField(max_length=8, choices=DONE_TYPES, default='na', db_index=True)
+    course_id = CourseKeyField(max_length=255, db_index=True, unique=True, verbose_name='Course ID')
 
-    created = models.DateTimeField(auto_now_add=True, db_index=True)
-    modified = models.DateTimeField(auto_now=True, db_index=True)
+    student = models.ForeignKey(User, db_index=True)
+
+    overall_progress = models.FloatField(default=0.0)
+
+    progress_json = CompressedTextField(verbose_name='Progress JSON', blank=True, null=True)
+
+    @property
+    def progress(self):
+        """
+        Deserializes a course progress JSON object
+        """
+        if self.progress_json:
+            return json.loads(self.progress_json)
+        return None
 
     def __repr__(self):
-        return 'StudentHistory<%r>' % ({
+        return 'StudenCourseProgress<%r>' % ({
             'course_id': self.course_id,
-            'module_type': self.module_type,
             'student_id': self.student_id,
-            'module_state_key': self.module_state_key,
-            'done': str(self.done),
+            'overall_progress': str(self.overall_progress),
         },)
 
     def __unicode__(self):

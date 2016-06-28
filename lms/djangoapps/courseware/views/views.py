@@ -94,6 +94,8 @@ from ..entrance_exams import user_must_complete_entrance_exam
 from ..module_render import get_module_for_descriptor, get_module, get_module_by_usage_id
 
 
+from course_progress.helpers import inject_course_progress_into_context
+
 log = logging.getLogger("edx.courseware")
 
 
@@ -345,6 +347,7 @@ def course_info(request, course_id):
 
         if CourseEnrollment.is_enrolled(request.user, course.id):
             inject_coursetalk_keys_into_context(context, course_key)
+            inject_course_progress_into_context(context, user, course_key)
 
         return render_to_response('courseware/info.html', context)
 

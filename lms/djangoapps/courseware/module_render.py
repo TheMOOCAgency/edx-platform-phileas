@@ -80,7 +80,9 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.x_module import XModuleDescriptor
 from .field_overrides import OverrideFieldData
-from course_progress.custom_track import track_custom_event
+
+from course_progress.progress import update_course_progress
+from course_progress.helpers import item_affects_course_progress
 
 log = logging.getLogger(__name__)
 
@@ -1047,13 +1049,10 @@ def _invoke_xblock_handler(request, course_id, usage_id, handler, suffix, course
     with modulestore().bulk_operations(course_key):
         instance, tracking_context = get_module_by_usage_id(request, course_id, usage_id, course=course)
 
-        # Track for hints attempted, LTI grade events
-        if suffix == 'hint_button':
-            track_custom_event(request.user, course_key, instance)
-        elif suffix == 'lti_2_0_result_rest_handler':
-            track_custom_event(request.user, course_key, instance)
-        elif suffix == 'grade_handler' and ('lti+block' in usage_id or 'lti_consumer+block' in usage_id):
-            track_custom_event(request.user, course_key, instance)
+        # For course completion tracking
+        affects = item_affects_course_progress(request, suffix, handler, usage_id)
+        if settings.FEATURES.get('TMA_COMPLETION_TRACKING') and affects:
+            update_course_progress(request.user, course_key, instance.category, [instance.location])
 
         # Name the transaction so that we can view XBlock handlers separately in
         # New Relic. The suffix is necessary for XModule handlers because the
