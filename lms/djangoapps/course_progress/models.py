@@ -24,8 +24,9 @@ class StudentCourseProgress(TimeStampedModel):
     """
     class Meta(object):
         app_label = "course_progress"
+        unique_together = (('student', 'course_id'),)
 
-    course_id = CourseKeyField(max_length=255, db_index=True, unique=True, verbose_name='Course ID')
+    course_id = CourseKeyField(max_length=255, db_index=True, verbose_name='Course ID')
 
     student = models.ForeignKey(User, db_index=True)
 
