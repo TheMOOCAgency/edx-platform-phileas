@@ -4,8 +4,11 @@ Course progress helpers
 from collections import OrderedDict
 
 from django.conf import settings
+from django.db import connection
 
+from student.models import CourseEnrollment
 from course_progress.models import StudentCourseProgress
+
 
 def inject_course_progress_into_context(context, user, course_key):
     """
@@ -20,7 +23,6 @@ def inject_course_progress_into_context(context, user, course_key):
     """
     overall_progress = 0
     progress = {}
-    student_rank = 'NA'
 
     if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
         try:
@@ -32,6 +34,28 @@ def inject_course_progress_into_context(context, user, course_key):
 
     context['overall_progress'] = overall_progress
     context['progress'] = progress
+    context['student_rank'], context['total_students'] = get_student_rank(user.id, course_key)
+
+def get_student_rank(student_id, course_key):
+    course_id = course_key.to_deprecated_string()
+    total_students = CourseEnrollment.objects.filter(course_id=course_key, is_active=True).count()
+
+    raw_query = """SELECT student_id FROM
+        course_progress_studentcourseprogress WHERE
+        course_id='"""+ course_id + """' AND
+        overall_progress > 0
+        ORDER BY overall_progress DESC;"""
+
+    rows = []
+    with connection.cursor() as cur:
+        cur.execute(raw_query)
+        rows = [int(row[0]) for row in cur.fetchall()]
+
+    rank = total_students
+    if student_id in rows:
+        rank = rows.index(student_id) + 1
+
+    return rank, total_students
 
 def item_affects_course_progress(request, suffix, handler, usage_id):
     suffix_list = [
