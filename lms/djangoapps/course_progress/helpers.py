@@ -34,7 +34,14 @@ def inject_course_progress_into_context(context, user, course_key):
 
     context['overall_progress'] = overall_progress
     context['progress'] = progress
-    context['student_rank'], context['total_students'] = get_student_rank(user.id, course_key)
+
+    context['is_rank_available'] = False
+    student_rank, total_students = get_student_rank(user.id, course_key)
+    if student_rank:
+        context['is_rank_available'] = True
+        context['student_rank'] = student_rank
+        context['total_students'] = total_students
+
 
 def get_student_rank(student_id, course_key):
     course_id = course_key.to_deprecated_string()
@@ -51,7 +58,7 @@ def get_student_rank(student_id, course_key):
         cur.execute(raw_query)
         rows = [int(row[0]) for row in cur.fetchall()]
 
-    rank = total_students
+    rank = None
     if student_id in rows:
         rank = rows.index(student_id) + 1
 
