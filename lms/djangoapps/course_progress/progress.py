@@ -3,45 +3,53 @@ from collections import OrderedDict
 
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from openassessment.workflow.models import AssessmentWorkflow
-from openedx.core.djangoapps.content.course_structures.models import CourseStructure
+from xmodule.modulestore.django import modulestore
+from course_api.blocks.api import get_blocks
 
 from course_progress.models import StudentCourseProgress
 from course_progress.helpers import get_default_course_progress
 
 
-def update_course_progress(student, course_key, module_type, usage_keys):
+def update_course_progress(request, course_key, module_type, usage_keys):
     """
     Description: To calculate and update the course progress
     for specified student and course.
 
     Arguments:
-        student: User instance, identifying the user related to the student
+        request: HTTPRequest obj
         course_key: SlashSeparatedCourseKey instance, identifying the course
         instance: progress affecting xblock module
         module_type: type of the xblock i.e. problem, video etc.
         usage_keys: list of usage key instances
 
+    Notes:
+        For each Block traversed, the following is verified and
+        the block is excluded when not accessible by the user.
+            1. Block is not visible_to_staff_only
+            2. The Block has been released
+            3. The cohort affiliation of the Block matches the requested user's cohort
+
     Author: Naresh Makwana
     """
     # Initialization
+    student = request.user
     course_struct = {}
     root = None
     course_progress = {}
     chapter_wise_progress = OrderedDict()
 
     # Get course structure
-    try:
-        course_obj = CourseStructure.objects.get(course_id=course_key)
-        course_struct = course_obj.structure
-        root = course_struct.get('root')
-    except CourseStructure.DoesNotExist:
-        return
+    course_usage_key = modulestore().make_course_usage_key(course_key)
+    root = course_usage_key.to_deprecated_string()
+
+    block_fields = ['type', 'display_name', 'children']
+    course_struct = get_blocks(request, course_usage_key, request.user, 'all', requested_fields=block_fields)
 
     # get course progress object
     try:
         student_course_progress = StudentCourseProgress.objects.get(student=student.id, course_id=course_key)
     except StudentCourseProgress.DoesNotExist:
-        default_progress_dict = get_default_course_progress(course_obj)
+        default_progress_dict = get_default_course_progress( course_struct.get('blocks', []), root )
         default_progress_json = json.dumps(default_progress_dict)
         student_course_progress = StudentCourseProgress.objects.create(
             student=student,

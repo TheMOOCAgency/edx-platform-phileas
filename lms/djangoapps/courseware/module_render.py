@@ -1052,7 +1052,7 @@ def _invoke_xblock_handler(request, course_id, usage_id, handler, suffix, course
         # For course completion tracking
         affects = item_affects_course_progress(request, suffix, handler, usage_id)
         if settings.FEATURES.get('TMA_COMPLETION_TRACKING') and affects:
-            update_course_progress(request.user, course_key, instance.category, [instance.location])
+            update_course_progress(request, course_key, instance.category, [instance.location])
 
         # Name the transaction so that we can view XBlock handlers separately in
         # New Relic. The suffix is necessary for XModule handlers because the

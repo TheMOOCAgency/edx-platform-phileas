@@ -84,10 +84,10 @@ def is_played(request):
     time_str = request.POST.get('saved_video_position', '00:00:00')
     return sum(map(int, time_str.split(':'))) > 0
 
-def get_default_course_progress(course_obj):
+def get_default_course_progress(blocks, root):
     ordered_blocks = OrderedDict()
-    if course_obj.structure:
-        traverse_tree(course_obj.structure['root'], course_obj.structure['blocks'], ordered_blocks)
+    if blocks:
+        traverse_tree(root, blocks, ordered_blocks)
     return ordered_blocks
 
 def traverse_tree(block, unordered_structure, ordered_blocks, parent=None):
@@ -106,5 +106,5 @@ def traverse_tree(block, unordered_structure, ordered_blocks, parent=None):
 
     ordered_blocks[block] = cur_block
 
-    for child_node in cur_block['children']:
+    for child_node in cur_block.get('children', []):
         traverse_tree(child_node, unordered_structure, ordered_blocks, parent=block)

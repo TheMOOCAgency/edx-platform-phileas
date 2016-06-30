@@ -37,6 +37,6 @@ def track_html_component(request):
             continue
 
     # update the course progress
-    update_course_progress(request.user, course_key, 'html', usage_keys)
+    update_course_progress(request, course_key, 'html', usage_keys)
 
     return JsonResponse({'success': True})
