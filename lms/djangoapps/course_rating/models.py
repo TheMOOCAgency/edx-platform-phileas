@@ -22,11 +22,11 @@ class CourseRating(TimeStampedModel):
     """
     class Meta(object):
         app_label = "course_rating"
-        unique_together = (('student_id', 'course_id'),)
+        unique_together = (('student', 'course_id'),)
 
     course_id = CourseKeyField(max_length=255, db_index=True, verbose_name='Course ID')
 
-    student_id = models.ForeignKey(User, db_index=True)
+    student = models.ForeignKey(User, db_index=True)
 
     stars = models.FloatField(default=0.0)
 

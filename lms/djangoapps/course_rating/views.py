@@ -28,13 +28,13 @@ def rate_course(request):
     Author: Naresh Makwana
     """
     # Get the parameters from POST
-    stars = request.GET.get('stars', 0.0)
+    stars = request.POST.get('stars', 0.0)
     course_id = request.POST.get('course_id')
     course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
 
     # save the course ratings
     try:
-        course_rating = CourseRating.objects.create(student=request.user.id, course_id=course_key, stars=stars)
+        course_rating = CourseRating.objects.create(student=request.user, course_id=course_key, stars=stars)
     except IntegrityError:
         pass
 
