@@ -1037,3 +1037,12 @@ if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
             name='track_html_component'
         ),
     )
+
+
+urlpatterns += (
+    url(
+        r'^rate_course/',
+        'course_rating.views.rate_course',
+        name='rate_course'
+    ),
+)

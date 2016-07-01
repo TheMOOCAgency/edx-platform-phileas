@@ -2077,6 +2077,9 @@ INSTALLED_APPS = (
 
     # coure progress
     'course_progress',
+
+    # course ratings
+    'course_rating',
 )
 
 # Migrations which are not in the standard module "migrations"

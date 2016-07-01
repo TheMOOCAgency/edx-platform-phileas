@@ -95,6 +95,7 @@ from ..module_render import get_module_for_descriptor, get_module, get_module_by
 
 
 from course_progress.helpers import inject_course_progress_into_context
+from course_rating.helpers import inject_course_ratings_into_context
 
 log = logging.getLogger("edx.courseware")
 
@@ -263,6 +264,7 @@ def jump_to(_request, course_id, location):
 
 @ensure_csrf_cookie
 @ensure_valid_course_key
+@login_required
 def course_info(request, course_id):
     """
     Display the course's info.html, or 404 if there is no such course.
@@ -347,7 +349,7 @@ def course_info(request, course_id):
 
         if CourseEnrollment.is_enrolled(request.user, course.id):
             inject_coursetalk_keys_into_context(context, course_key)
-            inject_course_progress_into_context(context, user, course_key)
+            inject_course_progress_into_context(context, request, course_key)
 
         return render_to_response('courseware/info.html', context)
 
@@ -651,6 +653,7 @@ def course_about(request, course_id):
             'course_image_urls': overview.image_urls,
         }
         inject_coursetalk_keys_into_context(context, course_key)
+        inject_course_ratings_into_context(context, request.user, course_key)
 
         return render_to_response('courseware/course_about.html', context)
 

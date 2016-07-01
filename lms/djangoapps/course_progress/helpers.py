@@ -1,16 +1,19 @@
 """
 Course progress helpers
 """
+import json
 from collections import OrderedDict
 
 from django.conf import settings
 from django.db import connection
+from xmodule.modulestore.django import modulestore
+from course_api.blocks.api import get_blocks
 
 from student.models import CourseEnrollment
 from course_progress.models import StudentCourseProgress
 
 
-def inject_course_progress_into_context(context, user, course_key):
+def inject_course_progress_into_context(context, request, course_key):
     """
     Set params to view context based on course_key and user
 
@@ -26,17 +29,17 @@ def inject_course_progress_into_context(context, user, course_key):
 
     if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
         try:
-            student_course_progress = StudentCourseProgress.objects.get(student=user.id, course_id=course_key)
+            student_course_progress = StudentCourseProgress.objects.get(student=request.user.id, course_id=course_key)
             overall_progress = student_course_progress.overall_progress
             progress = student_course_progress.progress
         except StudentCourseProgress.DoesNotExist:
-            pass
+            progress = set_initial_progress(request, course_key)
 
     context['overall_progress'] = overall_progress
     context['progress'] = progress
 
     context['is_rank_available'] = False
-    student_rank, total_students = get_student_rank(user.id, course_key)
+    student_rank, total_students = get_student_rank(request.user.id, course_key)
     if student_rank:
         context['is_rank_available'] = True
         context['student_rank'] = student_rank
@@ -108,3 +111,20 @@ def traverse_tree(block, unordered_structure, ordered_blocks, parent=None):
 
     for child_node in cur_block.get('children', []):
         traverse_tree(child_node, unordered_structure, ordered_blocks, parent=block)
+
+def set_initial_progress(request, course_key):
+    course_usage_key = modulestore().make_course_usage_key(course_key)
+    root = course_usage_key.to_deprecated_string()
+
+    block_fields = ['type', 'display_name', 'children']
+    course_struct = get_blocks(request, course_usage_key, request.user, 'all', requested_fields=block_fields)
+
+    default_progress_dict = get_default_course_progress( course_struct.get('blocks', []), root )
+    default_progress_json = json.dumps(default_progress_dict)
+    student_course_progress = StudentCourseProgress.objects.create(
+        student=request.user,
+        course_id=course_key,
+        progress_json=default_progress_json,
+    )
+
+    return student_course_progress.progress
