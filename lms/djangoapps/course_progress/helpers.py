@@ -107,7 +107,9 @@ def is_assessed(student_id, course_key, instance):
         except:
             return False
 
-    return workflow.status == 'done'
+        return workflow.status == 'done'
+
+    return False
 
 def get_component_state(student_id, course_key, instance):
     try:
