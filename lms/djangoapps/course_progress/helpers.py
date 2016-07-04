@@ -9,6 +9,8 @@ from django.db import connection
 from xmodule.modulestore.django import modulestore
 from course_api.blocks.api import get_blocks
 
+from courseware.models import StudentModule
+from openassessment.workflow.models import AssessmentWorkflow
 from student.models import CourseEnrollment
 from course_progress.models import StudentCourseProgress
 
@@ -67,7 +69,7 @@ def get_student_rank(student_id, course_key):
 
     return rank, total_students
 
-def item_affects_course_progress(request, suffix, handler, usage_id):
+def item_affects_course_progress(request, course_key, suffix, handler, instance):
     suffix_list = [
         'problem_check',
         'hint_button',
@@ -78,14 +80,44 @@ def item_affects_course_progress(request, suffix, handler, usage_id):
         return True
     elif suffix == 'save_user_state' and is_played(request):
         return True
-    elif (handler == 'render_grade') and ('lti+block' in usage_id or 'lti_consumer+block' in usage_id or 'openassessment' in usage_id):
-        return True
+    else:
+        usage_id = instance.location.to_deprecated_string()
+        if suffix == 'grade_handler':
+            if 'lti+block' in usage_id or 'lti_consumer+block' in usage_id:
+                return True
+        elif handler == 'render_grade':
+            if 'openassessment' in usage_id:
+                return is_assessed(request.user.id, course_key, instance)
 
     return False
 
 def is_played(request):
     time_str = request.POST.get('saved_video_position', '00:00:00')
     return sum(map(int, time_str.split(':'))) > 0
+
+def is_assessed(student_id, course_key, instance):
+    state = get_component_state(student_id, course_key, instance)
+    submission_uuid = state.get('submission_uuid')
+
+    if submission_uuid:
+        course_id = course_key.to_deprecated_string()
+        item_id = instance.location.to_deprecated_string()
+        try:
+            workflow = AssessmentWorkflow.objects.get(course_id=course_id, item_id=item_id, submission_uuid=submission_uuid)
+        except:
+            return False
+
+    return workflow.status == 'done'
+
+def get_component_state(student_id, course_key, instance):
+    try:
+        history = StudentModule.objects.get(module_state_key=instance.location,
+            student_id=student_id, course_id=course_key, module_type=instance.category)
+    except:
+        history = None
+
+    return json.loads(history.state) if history and history.state else {}
+
 
 def get_default_course_progress(blocks, root):
     ordered_blocks = OrderedDict()

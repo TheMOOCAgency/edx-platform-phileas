@@ -1050,7 +1050,7 @@ def _invoke_xblock_handler(request, course_id, usage_id, handler, suffix, course
         instance, tracking_context = get_module_by_usage_id(request, course_id, usage_id, course=course)
 
         # For course completion tracking
-        affects = item_affects_course_progress(request, suffix, handler, usage_id)
+        affects = item_affects_course_progress(request, course_key, suffix, handler, instance)
         if settings.FEATURES.get('TMA_COMPLETION_TRACKING') and affects:
             update_course_progress(request, course_key, instance.category, [instance.location])
 
