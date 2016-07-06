@@ -4,7 +4,6 @@ Course progress helpers
 import json
 from collections import OrderedDict
 
-from django.conf import settings
 from django.db import connection
 from xmodule.modulestore.django import modulestore
 from course_api.blocks.api import get_blocks
@@ -29,13 +28,12 @@ def inject_course_progress_into_context(context, request, course_key):
     overall_progress = 0
     progress = {}
 
-    if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
-        try:
-            student_course_progress = StudentCourseProgress.objects.get(student=request.user.id, course_id=course_key)
-            overall_progress = student_course_progress.overall_progress
-            progress = student_course_progress.progress
-        except StudentCourseProgress.DoesNotExist:
-            progress = set_initial_progress(request, course_key)
+    try:
+        student_course_progress = StudentCourseProgress.objects.get(student=request.user.id, course_id=course_key)
+        overall_progress = student_course_progress.overall_progress
+        progress = student_course_progress.progress
+    except StudentCourseProgress.DoesNotExist:
+        progress = set_initial_progress(request, course_key)
 
     context['overall_progress'] = overall_progress
     context['progress'] = progress

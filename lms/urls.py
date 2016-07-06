@@ -1024,21 +1024,20 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
     )
 
 # Course progress
-if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
-    urlpatterns += (
-        url(
-            r'^overall_course_progress/',
-            'course_progress.views.get_overall_course_progress',
-            name='get_overall_course_progress'
-        ),
-        url(
-            r'^track_html_component/',
-            'course_progress.custom_track.track_html_component',
-            name='track_html_component'
-        ),
-    )
+urlpatterns += (
+    url(
+        r'^overall_course_progress/',
+        'course_progress.views.get_overall_course_progress',
+        name='get_overall_course_progress'
+    ),
+    url(
+        r'^track_html_component/',
+        'course_progress.custom_track.track_html_component',
+        name='track_html_component'
+    ),
+)
 
-
+# Course rating
 urlpatterns += (
     url(
         r'^rate_course/',

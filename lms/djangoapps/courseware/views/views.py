@@ -349,7 +349,8 @@ def course_info(request, course_id):
 
         if CourseEnrollment.is_enrolled(request.user, course.id):
             inject_coursetalk_keys_into_context(context, course_key)
-            inject_course_progress_into_context(context, request, course_key)
+            if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
+                inject_course_progress_into_context(context, request, course_key)
 
         return render_to_response('courseware/info.html', context)
 
