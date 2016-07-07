@@ -1035,6 +1035,11 @@ urlpatterns += (
         'course_progress.custom_track.track_html_component',
         name='track_html_component'
     ),
+    url(
+        r'^completion_status/',
+        'course_progress.views.get_completion_status',
+        name='completion_status'
+    ),
 )
 
 # Course rating
