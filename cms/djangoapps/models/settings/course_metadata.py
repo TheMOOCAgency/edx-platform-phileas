@@ -183,6 +183,11 @@ class CourseMetadata(object):
             try:
                 val = model['value']
                 if hasattr(descriptor, key) and getattr(descriptor, key) != val:
+                    # If course content needs to be validated then
+                    # revert the value if user is not a validator
+                    validation_required = settings.FEATURES.get('COURSE_CONTENT_VALIDATION')
+                    if validation_required and key == 'catalog_visibility' and not user.profile.is_validator:
+                        val = getattr(descriptor, key)
                     key_values[key] = descriptor.fields[key].from_json(val)
             except (TypeError, ValueError) as err:
                 did_validate = False

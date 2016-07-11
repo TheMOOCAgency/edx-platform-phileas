@@ -748,6 +748,11 @@ def _create_or_rerun_course(request):
         definition_data = {'wiki_slug': wiki_slug}
         fields.update(definition_data)
 
+        # If the course content validation is required then
+        # set catalog visibility to none
+        if settings.FEATURES.get('COURSE_CONTENT_VALIDATION'):
+            fields.update({'catalog_visibility': 'none'})
+
         if 'source_course_key' in request.json:
             return _rerun_course(request, org, course, run, fields)
         else:

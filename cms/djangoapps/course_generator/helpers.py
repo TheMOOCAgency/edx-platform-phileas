@@ -48,7 +48,7 @@ def create_course(formation):
             if _has_non_ascii_characters(org) or _has_non_ascii_characters(course) or _has_non_ascii_characters(run):
                 return
 
-        fields = {'start': start, 'catalog_visibility': 'none'}
+        fields = {'start': start}
         if display_name is not None:
             fields['display_name'] = display_name
 
@@ -101,7 +101,6 @@ def _create_new_course(formation, org, number, run, fields):
         'course_image_asset_path': formation.get('image_logo_url', formation.get('image_logo_url2')),
         'banner_image_asset_path': formation.get('image_jacket_url'),
         'intro_video': None,
-        'catalog_visibility': new_course.catalog_visibility,
         'start_date': new_course.start
     }
 
