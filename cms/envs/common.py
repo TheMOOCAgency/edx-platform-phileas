@@ -1194,3 +1194,7 @@ PARTNER_SUPPORT_EMAIL = ''
 
 # Affiliate cookie tracking
 AFFILIATE_COOKIE_NAME = 'affiliate_id'
+
+# Daily JSON dumps for creating courses
+COURSE_JSON_LOCATION = DATA_DIR / 'course_json'
+COURSE_JSON_FILE_NAME = 'courses.json'
