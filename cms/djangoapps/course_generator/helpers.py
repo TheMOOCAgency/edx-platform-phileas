@@ -22,6 +22,8 @@ from util.organizations_helpers import (
 from contentstore.views.course import create_new_course_in_store
 from openedx.core.djangoapps.models.course_details import CourseDetails
 
+from course_generator.utils import store_jacket_image
+
 
 def create_course(formation):
     """
@@ -95,12 +97,15 @@ def _create_new_course(formation, org, number, run, fields):
     add_organization_course(org_data, new_course.id)
 
     # Set description and images for the course
+    course_image_name, course_image_asset_path = store_jacket_image(
+        new_course.id, formation.get('image_jacket_url')
+    )
     additional_info = {
         'language': formation.get('language', 'fr'),
         'short_description': formation.get('description', ''),
-        'course_image_asset_path': formation.get('image_logo_url', formation.get('image_logo_url2')),
-        'banner_image_asset_path': formation.get('image_jacket_url'),
         'intro_video': None,
+        'course_image_name': course_image_name,
+        'course_image_asset_path': course_image_asset_path,
         'start_date': new_course.start
     }
 
