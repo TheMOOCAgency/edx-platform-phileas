@@ -22,27 +22,33 @@ def store_jacket_image(course_key, img_url):
         mime_type = mimetypes.types_map['.'+filename.split('.')[-1]]
         sc_partial = partial(StaticContent, content_loc, filename, mime_type)
 
-        content = sc_partial(urllib.urlopen(img_url).read())
-        tempfile_path = None
+        content = None
+        try:
+            content = sc_partial(urllib.urlopen(img_url).read())
+        except:
+            pass
 
-        (thumbnail_content, thumbnail_location) = contentstore().generate_thumbnail(
-                content,
-                tempfile_path=tempfile_path,
-            )
+        if content:
+            tempfile_path = None
 
-        # delete cached thumbnail even if one couldn't be created this time (else
-        # the old thumbnail will continue to show)
-        del_cached_content(thumbnail_location)
-        # now store thumbnail location only if we could create it
-        if thumbnail_content is not None:
-            content.thumbnail_location = thumbnail_location
+            (thumbnail_content, thumbnail_location) = contentstore().generate_thumbnail(
+                    content,
+                    tempfile_path=tempfile_path,
+                )
 
-        # then commit the content
-        contentstore().save(content)
-        del_cached_content(content.location)
+            # delete cached thumbnail even if one couldn't be created this time (else
+            # the old thumbnail will continue to show)
+            del_cached_content(thumbnail_location)
+            # now store thumbnail location only if we could create it
+            if thumbnail_content is not None:
+                content.thumbnail_location = thumbnail_location
 
-        content_name = content.name
-        asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
+            # then commit the content
+            contentstore().save(content)
+            del_cached_content(content.location)
+
+            content_name = content.name
+            asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
 
     # return  content name and asset URL
     return content_name, asset_url

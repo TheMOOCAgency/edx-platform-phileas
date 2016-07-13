@@ -40,8 +40,10 @@ def create_course(formation):
         # force the start date for reruns and allow us to override start via the client
         publish_date = formation.get('publishDate')
         publish_datetime = CourseFields.start.default
-        if publish_date:
+        try:
             publish_datetime = datetime.strptime(publish_date, '%Y-%m-%d')
+        except:
+            pass
         start = publish_datetime
         run = formation.get('publishYear') + '_T2'
 
