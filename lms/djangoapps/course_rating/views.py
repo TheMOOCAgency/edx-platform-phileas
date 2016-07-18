@@ -44,7 +44,7 @@ def rate_course(request):
     # get total number of reviews
     total_reviews = CourseRating.calc_total_reviews(course_id=course_key)
 
-    # retur json response
+    # return json response
     return JsonResponse({
         'avg_ratings': avg_ratings,
         'total_reviews': total_reviews
