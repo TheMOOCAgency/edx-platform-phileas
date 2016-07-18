@@ -129,6 +129,8 @@ from openedx.core.djangoapps.programs.utils import get_programs_for_dashboard, g
 from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.djangoapps.theming import helpers as theming_helpers
 
+from recaptcha.views import recaptcha_verified
+
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1166,6 +1168,13 @@ def login_user(request, error=""):  # pylint: disable=too-many-statements,unused
                 "value": _('There was an error receiving your login information. Please email us.'),
             })  # TODO: this should be status code 400
 
+        if settings.FEATURES.get('USE_RECAPTCHA_VERIFICATION') and \
+        not recaptcha_verified(request):
+            return JsonResponse({
+                "success": False,
+                "value": _('Please show you are not a robot.'),
+            })
+
         email = request.POST['email']
         password = request.POST['password']
         try:
@@ -1576,6 +1585,13 @@ def create_account_with_params(request, params):
     # Copy params so we can modify it; we can't just do dict(params) because if
     # params is request.POST, that results in a dict containing lists of values
     params = dict(params.items())
+
+    # Check for reCaptcha
+    if settings.FEATURES.get('USE_RECAPTCHA_VERIFICATION') and \
+    not recaptcha_verified(request):
+        raise ValidationError({
+            'access_token': [_('Please show you are not a robot.')]
+        })
 
     # allow for microsites to define their own set of required/optional/hidden fields
     extra_fields = microsite.get_value(
