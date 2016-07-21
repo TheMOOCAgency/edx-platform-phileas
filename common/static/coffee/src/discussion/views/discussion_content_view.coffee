@@ -288,6 +288,7 @@ if Backbone?
         user_url: @model.get('user_url')
         is_community_ta: @model.get('community_ta_authored')
         is_staff: @model.get('staff_authored')
+        profile_image_url: @model.get('profile_image_url')
       )
 
     getEndorserDisplay: ->

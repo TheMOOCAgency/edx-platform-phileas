@@ -1,7 +1,10 @@
 <div class="discussion-post">
     <header class="wrapper-post-header">
         <div class="post-header-content">
-            <h1 class="post-title"><%- title %></h1>
+          <div>
+            <img class="menu-image" style="border-radius:50%;border:black solid 1px;" src=<%- profile_image_url %> alt="" />
+            <span class="post-title"><big><strong><%- title %></strong></big></span>
+          </div>
             <p class="posted-details">
             <%
             var timeAgoHtml = interpolate(
