@@ -28,6 +28,8 @@ from openedx.core.djangoapps.course_groups.cohorts import (
     get_course_cohort_settings, get_cohort_by_id, get_cohort_id, is_course_cohorted
 )
 from openedx.core.djangoapps.course_groups.models import CourseUserGroup
+from django.contrib.auth.models import AnonymousUser
+from openedx.core.djangoapps.user_api.accounts.image_helpers import get_profile_image_urls_for_user
 
 
 log = logging.getLogger(__name__)
@@ -714,6 +716,13 @@ def prepare_content(content, course_key, is_staff=False, course_is_cohorted=None
     else:
         # Remove any cohort information that might remain if the course had previously been cohorted.
         content.pop('group_id', None)
+
+    # add user profile image if available
+    lms_user = AnonymousUser()
+    if not content['anonymous']:
+        lms_user = User.objects.get(username=content.get('username'))
+    profile_image_url = get_profile_image_urls_for_user(lms_user)['medium']
+    content.update({'profile_image_url': profile_image_url})
 
     return content
 

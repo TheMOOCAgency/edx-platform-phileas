@@ -42,6 +42,8 @@ import lms.lib.comment_client as cc
 
 from opaque_keys.edx.keys import CourseKey
 
+from openedx.core.djangoapps.user_api.accounts.image_helpers import get_profile_image_urls_for_user
+
 THREADS_PER_PAGE = 20
 INLINE_THREADS_PER_PAGE = 20
 PAGES_NEARBY_DELTA = 2
@@ -469,7 +471,8 @@ def user_profile(request, course_key, user_id):
                 'annotated_content_info': json.dumps(annotated_content_info),
                 'page': query_params['page'],
                 'num_pages': query_params['num_pages'],
-                'learner_profile_page_url': reverse('learner_profile', kwargs={'username': django_user.username})
+                'learner_profile_page_url': reverse('learner_profile', kwargs={'username': django_user.username}),
+                'profile_image_url': get_profile_image_urls_for_user(django_user)['large']
             }
 
             return render_to_response('discussion/user_profile.html', context)
