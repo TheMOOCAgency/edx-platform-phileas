@@ -1,3 +1,20 @@
+<style>
+.box{
+    display: none;
+    width: 100%;
+}
+
+.username:hover + .box,.box:hover{
+    display: inline;
+    position: relative;
+    z-index: 100;
+}
+
+.rounded {
+  border-radius: 50%;
+  border: black solid 1px;
+}
+</style>
 <div class="discussion-comment" id="comment_<%- id %>">
   <div class="response-body"><%- body %></div>
   <%=
@@ -12,7 +29,7 @@
           }
       )
   %>
-  <span class="posted-details">
+  <p class="posted-details">
     <%
     var time_ago = interpolate(
       '<span class="timeago" title="%(time)s">%(time)s</span>',
@@ -22,12 +39,14 @@
     %>
     <%= interpolate(
       // Translators: 'timeago' is a placeholder for a fuzzy, relative timestamp (see: https://github.com/rmm5t/jquery-timeago)
-      gettext("posted %(time_ago)s by "),
-      {time_ago: time_ago},
+      gettext("posted %(time_ago)s by %(author)s"),
+      {time_ago: time_ago, author: author_display},
       true
     ) %>
+  <span class="box">
+    <img align="middle" class="rounded" src=<%- profile_image_url %> alt="" />
   </span>
-  <%= author_display %>
+  </p>
   <div class="post-labels">
     <span class="post-label-reported"><span class="icon fa fa-flag" aria-hidden="true"></span><%- gettext("Reported") %></span>
   </div>

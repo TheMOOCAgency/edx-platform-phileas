@@ -1,25 +1,5 @@
 <% if (username) { %>
-<style>
-.box{
-    display: none;
-    width: 100%;
-}
-
-.username:hover + .box,.box:hover{
-    display: block;
-    position: relative;
-    z-index: 100;
-}
-
-.rounded {
-  border-radius: 50%;
-  border: black solid 1px;
-}
-</style>
 <a href="<%- user_url %>" class="username"><%- username %></a>
-<div class="box">
-  <img class="rounded menu-image" src=<%- profile_image_url %> alt="" />
-</div>
     <% if (is_community_ta) { %>
     <span class="user-label-community-ta"><%- gettext("Community TA") %></span>
     <% } else if (is_staff) { %>
