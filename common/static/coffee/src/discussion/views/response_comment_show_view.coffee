@@ -10,7 +10,8 @@ if Backbone?
             {
               cid: @model.cid,
               author_display: @getAuthorDisplay(),
-              readOnly: $('.discussion-module').data('read-only')
+              readOnly: $('.discussion-module').data('read-only'),
+              profile_image_url: @model.profile_image_url
             },
             @model.attributes
           )
