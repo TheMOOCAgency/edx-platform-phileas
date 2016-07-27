@@ -11,7 +11,7 @@ if Backbone?
               cid: @model.cid,
               author_display: @getAuthorDisplay(),
               readOnly: $('.discussion-module').data('read-only'),
-              profile_image_url: @model.get('profile_image_url')
+              profile_image_url: @model.attributes.thread.attributes.profile_image_url
             },
             @model.attributes
           )
