@@ -1,20 +1,3 @@
-<style>
-.box{
-    display: none;
-    width: 100%;
-}
-
-.username:hover + .box,.box:hover{
-    display: inline;
-    position: relative;
-    z-index: 100;
-}
-
-.rounded {
-  border-radius: 50%;
-  border: black solid 1px;
-}
-</style>
 <div class="discussion-comment" id="comment_<%- id %>">
   <div class="response-body"><%- body %></div>
   <%=

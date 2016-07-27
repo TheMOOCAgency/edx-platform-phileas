@@ -2,7 +2,7 @@
     <header class="wrapper-post-header">
         <div class="post-header-content">
           <div>
-            <img class="menu-image" style="border-radius:50%;border:black solid 1px;" src=<%- profile_image_url %> alt="" />
+            <img class="rounded" src=<%- profile_image_url %> alt="" />
             <span class="post-title"><big><strong><%- title %></strong></big></span>
           </div>
             <p class="posted-details">
