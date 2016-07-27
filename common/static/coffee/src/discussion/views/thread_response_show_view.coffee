@@ -11,7 +11,8 @@ if Backbone?
                 cid: @model.cid,
                 author_display: @getAuthorDisplay(),
                 endorser_display: @getEndorserDisplay(),
-                readOnly: $('.discussion-module').data('read-only')
+                readOnly: $('.discussion-module').data('read-only'),
+                profile_image_url: @model.get('profile_image_url')
             },
             @model.attributes
         )
