@@ -1031,7 +1031,7 @@ urlpatterns += (
         name='get_overall_course_progress'
     ),
     url(
-        r'^track_html_component/',
+        r'^track_html_component$',
         'course_progress.custom_track.track_html_component',
         name='track_html_component'
     ),
