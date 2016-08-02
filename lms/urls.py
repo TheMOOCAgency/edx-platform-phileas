@@ -16,6 +16,9 @@ from courseware.views.index import CoursewareIndex
 from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
 from student.views import LogoutView
+from course_progress.api import (
+    APICompletionProgress, APIStudentRank, APILeaderBoard
+)
 
 # Uncomment the next two lines to enable the admin:
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
@@ -1041,6 +1044,83 @@ urlpatterns += (
         name='completion_status'
     ),
 )
+
+# Course progress API
+if settings.FEATURES.get('TMA_ENABLE_COURSE_PROGRESS_API'):
+    urlpatterns += (
+        url(
+            r'^courses/{}/completion_progress/?$'.format(
+                settings.COURSE_ID_PATTERN,
+            ),
+            APICompletionProgress.as_view(),
+            name='completion_progress',
+        ),
+        url(
+            r'^courses/{}/completion_progress/(?P<chapter>[^/]*)/$'.format(
+                settings.COURSE_ID_PATTERN,
+            ),
+            APICompletionProgress.as_view(),
+            name='completion_progress_chapter',
+        ),
+        url(
+            r'^courses/{}/completion_progress/(?P<chapter>[^/]*)/(?P<section>[^/]*)/$'.format(
+                settings.COURSE_ID_PATTERN,
+            ),
+            APICompletionProgress.as_view(),
+            name='completion_progress_section',
+        ),
+        url(
+            r'^courses/{}/completion_progress/(?P<chapter>[^/]*)/(?P<section>[^/]*)/(?P<unit>[^/]*)/?$'.format(
+                settings.COURSE_ID_PATTERN,
+            ),
+            APICompletionProgress.as_view(),
+            name='completion_progress_unit',
+        ),
+    )
+
+
+# student rank on the bases of completion progress
+if settings.FEATURES.get('TMA_ENABLE_STUDENT_RANK_API'):
+    urlpatterns += (
+        url(
+            r'^courses/{}/completion_rank/?$'.format(
+                settings.COURSE_ID_PATTERN
+            ),
+            APIStudentRank.as_view(),
+            name='api_student_rank'
+        ),
+    )
+
+# leaderboard API on the bases of completion progress
+if settings.FEATURES.get('TMA_ENABLE_LEADERBOARD_API'):
+    urlpatterns += (
+        url(
+            r'^courses/{}/completion_leaderboard/?$'.format(
+                settings.COURSE_ID_PATTERN
+            ),
+            APILeaderBoard.as_view(),
+            name='completion_leaderboard'
+        ),
+        url(
+            r'^courses/{}/completion_leaderboard/(?P<limit>[0-9]+)/$'.format(
+                settings.COURSE_ID_PATTERN
+            ),
+            APILeaderBoard.as_view(),
+            name='completion_leaderboard_limit'
+        ),
+    )
+
+# leaderboard view on the bases of completion progress
+if settings.FEATURES.get('TMA_ENABLE_LEADERBOARD_VIEW'):
+    urlpatterns += (
+        url(
+            r'^courses/{}/completion_leaderboard/view/?$'.format(
+                settings.COURSE_ID_PATTERN
+            ),
+            'course_progress.views.show_leaderboard',
+            name='show_leaderboard'
+        ),
+    )
 
 # Course rating
 urlpatterns += (

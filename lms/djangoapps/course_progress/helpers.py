@@ -10,6 +10,10 @@ from course_api.blocks.api import get_blocks
 
 from courseware.models import StudentModule
 from openassessment.workflow.models import AssessmentWorkflow
+from openedx.core.djangoapps.user_api.accounts.image_helpers import get_profile_image_urls_for_user
+
+from opaque_keys.edx.locations import BlockUsageLocator
+
 from student.models import CourseEnrollment
 from course_progress.models import StudentCourseProgress
 
@@ -45,7 +49,6 @@ def inject_course_progress_into_context(context, request, course_key):
         context['student_rank'] = student_rank
         context['total_students'] = total_students
 
-
 def get_student_rank(student_id, course_key):
     course_id = course_key.to_deprecated_string()
     total_students = CourseEnrollment.objects.filter(course_id=course_key, is_active=True).count()
@@ -66,6 +69,29 @@ def get_student_rank(student_id, course_key):
         rank = rows.index(student_id) + 1
 
     return rank, total_students
+
+def get_leaderboard(course_key, limit):
+    course_id = course_key.to_deprecated_string()
+    total_students = CourseEnrollment.objects.filter(course_id=course_key, is_active=True).count()
+
+    progress_set = StudentCourseProgress.objects.filter(
+        course_id=course_key, overall_progress__gt=0
+    ).order_by(
+        '-overall_progress'
+    )[:limit]
+
+    leaderboard = []
+    for index, student_progress in enumerate(progress_set):
+        leaderboard.append({
+            'student': {
+                'name': student_progress.student.profile.name,
+                'profile_image_url': get_profile_image_urls_for_user(student_progress.student)['medium']
+            },
+            'rank': index + 1,
+            'percentage': student_progress.overall_progress
+        })
+
+    return leaderboard, total_students
 
 def item_affects_course_progress(request, course_key, suffix, handler, instance):
     suffix_list = [
@@ -160,3 +186,10 @@ def set_initial_progress(request, course_key):
     )
 
     return student_course_progress.progress
+
+def make_usage_id(course_key, category, url_name):
+    return str(
+        BlockUsageLocator(
+            course_key, category, url_name
+        )
+    )
