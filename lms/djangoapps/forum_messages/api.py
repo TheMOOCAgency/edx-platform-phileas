@@ -93,6 +93,7 @@ class APIForumMessages(APIView):
                 if section_id == section.url_name:
                     for unit in section.get_children():
                         for vertical in unit.get_children():
+                            print vertical.category + "\n" * 45
                             if vertical.category == 'discussion':
                                 commentable_id_list.append(vertical.discussion_id)
                     break
@@ -108,7 +109,14 @@ class APIForumMessages(APIView):
             }
             threads = Thread.search(query_params).collection
             for thread in threads:
-                request.GET = {'thread_id': thread['id']}
+                if thread['thread_type'] == "discussion":
+                    request.GET = {'thread_id': thread['id']}
+                elif thread['thread_type'] == "question":
+                    request.GET = {'thread_id': thread['id'],'endorsed':False}
+                else:
+                    ## ---> Set BreakPoint
+                    import pdb;
+                    pdb.set_trace()
                 if thread['username'] == request.user.username:
                     count = count + 1 
                 list_comments = CommentViewSet()
