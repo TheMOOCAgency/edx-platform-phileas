@@ -1143,8 +1143,3 @@ if settings.FEATURES.get('TMA_ENABLE_FORUM_MESSAGES_API'):
             name='api_forum_messages'
         ),
     )
-
-#Grades api
-urlpatterns += (
-    url('^api/grades_api/', include('grades_api.urls', namespace='grades_api')),
-)
