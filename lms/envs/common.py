@@ -2080,6 +2080,9 @@ INSTALLED_APPS = (
 
     # course ratings
     'course_rating',
+
+    # course info
+    'course_info',
 )
 
 # Migrations which are not in the standard module "migrations"
