@@ -1133,15 +1133,16 @@ urlpatterns += (
 )
 
 # Forum messages
-urlpatterns += (
-    url(
-        r'^forum_messages/{}/(?P<section_id>[^/]*)/$'.format(
-            settings.COURSE_ID_PATTERN
+if settings.FEATURES.get('TMA_ENABLE_FORUM_MESSAGES_API'):
+    urlpatterns += (
+        url(
+            r'^forum_messages/{}/(?P<section_id>[^/]*)/$'.format(
+                settings.COURSE_ID_PATTERN
+            ),
+            APIForumMessages.as_view(),
+            name='api_forum_messages'
         ),
-        APIForumMessages.as_view(),
-        name='api_forum_messages'
-    ),
-)
+    )
 
 #Grades api
 urlpatterns += (
