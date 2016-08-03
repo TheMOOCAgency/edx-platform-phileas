@@ -19,6 +19,7 @@ from student.views import LogoutView
 from course_progress.api import (
     APICompletionProgress, APIStudentRank, APILeaderBoard
 )
+from forum_messages.api import APIForumMessages
 
 # Uncomment the next two lines to enable the admin:
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
@@ -1129,4 +1130,20 @@ urlpatterns += (
         'course_rating.views.rate_course',
         name='rate_course'
     ),
+)
+
+# Forum messages
+urlpatterns += (
+    url(
+        r'^forum_messages/{}/(?P<section_id>[^/]*)/$'.format(
+            settings.COURSE_ID_PATTERN
+        ),
+        APIForumMessages.as_view(),
+        name='api_forum_messages'
+    ),
+)
+
+#Grades api
+urlpatterns += (
+    url('^api/grades_api/', include('grades_api.urls', namespace='grades_api')),
 )
