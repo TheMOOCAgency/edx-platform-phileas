@@ -4,106 +4,69 @@ Course info helpers
 from edxmako.shortcuts import render_to_string
 from xmodule.modulestore.django import modulestore
 from courseware.module_render import get_module_for_descriptor, _add_timed_exam_info
-from courseware.model_data import FieldDataCache
+from courseware.model_data import FieldDataCache, ScoresClient
 from util import milestones_helpers
 from openedx.core.lib.gating import api as gating_api
 from courseware.entrance_exams import user_must_complete_entrance_exam
 from util.model_utils import slugify
 from django.core.context_processors import csrf
+from django.contrib.auth.models import User
+from util.db import outer_atomic
+from courseware import grades
 
 
-def toc_for_course(user, request, course):
+def prepare_chapters_with_grade(student, request, course):
     '''
-    Create a table of contents from the module store
+    Create chapters with grade details.
 
     Return format:
     { 'chapters': [
-            {'display_name': name, 'url_name': url_name, 'sections': SECTIONS},
+            {'display_name': name, 'sections': SECTIONS},
         ],
     }
 
     where SECTIONS is a list
-    [ {'display_name': name, 'url_name': url_name,
-       'format': format, 'due': due, 'completed' : bool, 'graded': bool}, ...]
+    [ {'display_name': name, 'format': format, 'due': due, 'completed' : bool,
+        'graded': bool}, ...]
 
     chapters with name 'hidden' are skipped.
 
     NOTE: assumes that if we got this far, user has access to course.  Returns
-    None if this is not the case.
+    [] if this is not the case.
     '''
+    with outer_atomic():
+        field_data_cache = grades.field_data_cache_for_grading(course, student)
+        scores_client = ScoresClient.from_field_data_cache(field_data_cache)
 
-    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(
-        course.id, user, course, 2,
+    courseware_summary = grades.progress_summary(
+        student, request, course, field_data_cache=field_data_cache, scores_client=scores_client
     )
-    with modulestore().bulk_operations(course.id):
-        course_module = get_module_for_descriptor(
-            user, request, course, field_data_cache, course.id, course=course
-        )
-        if course_module is None:
-            return {'chapters': {}}
 
-        toc_chapters = list()
-        chapters = course_module.get_display_items()
+    # find the passing grade for the course
+    nonzero_cutoffs = [cutoff for cutoff in course.grade_cutoffs.values() if cutoff > 0]
+    success_cutoff = min(nonzero_cutoffs) if nonzero_cutoffs else None
 
-        # Check for content which needs to be completed
-        # before the rest of the content is made available
-        required_content = milestones_helpers.get_required_content(course, user)
-
-        # Check for gated content
-        gated_content = gating_api.get_gated_content(course, user)
-
-        # The user may not actually have to complete the entrance exam, if one is required
-        if not user_must_complete_entrance_exam(request, user, course):
-            required_content = [content for content in required_content if not content == course.entrance_exam_id]
-
-        section_index = 0
-        for chapter in chapters:
-            # Only show required content, if there is required content
-            # chapter.hide_from_toc is read-only (bool)
-            display_id = slugify(chapter.display_name_with_default_escaped)
-            local_hide_from_toc = False
-            if required_content:
-                if unicode(chapter.location) not in required_content:
-                    local_hide_from_toc = True
-
-            # Skip the current chapter if a hide flag is tripped
-            if chapter.hide_from_toc or local_hide_from_toc:
-                continue
-
-            sections = list()
-            for section in chapter.get_display_items():
+    chapters = []
+    section_index = 0
+    for chapter in courseware_summary:
+        if not chapter['display_name'] == "hidden":
+            sections = []
+            for section in chapter['sections']:
                 section_index += 1
-                # skip the section if it is gated/hidden from the user
-                if gated_content and unicode(section.location) in gated_content:
-                    continue
-                if section.hide_from_toc:
-                    continue
-
-                # check whether the user has completed the section or not
-                is_section_completed = True  # TODO: Naresh, test with grade for the section
-                section_context = {
-                    'display_name': section.display_name_with_default_escaped,
-                    'url_name': section.url_name,
-                    'format': section.format if section.format is not None else '',
-                    'due': section.due,
-                    'completed': is_section_completed,
-                    'graded': section.graded,
+                earned = section['section_total'].earned
+                total = section['section_total'].possible
+                percentage = earned * 100 / total if earned > 0 and total > 0 else 0
+                sections.append({
                     'section_index': section_index,
-                }
-                _add_timed_exam_info(user, course, section, section_context)
-
-
-                sections.append(section_context)
-
-            toc_chapters.append({
-                'display_name': chapter.display_name_with_default_escaped,
-                'display_id': display_id,
-                'url_name': chapter.url_name,
-                'sections': sections,
+                    'display_name': section['display_name'],
+                    'passed': success_cutoff and percentage >= success_cutoff
+                })
+            chapters.append({
+                'display_name': chapter['display_name'],
+                'sections': sections
             })
-        return {
-            'chapters': toc_chapters,
-        }
+
+    return chapters
 
 def render_accordion(request, course, table_of_contents):
     """
@@ -122,5 +85,5 @@ def render_accordion(request, course, table_of_contents):
 
 def inject_custom_accordian_into_context(context, user, request, course):
         # get the custom accordian to be shown on course home
-        table_of_contents = toc_for_course(user, request, course)
-        context['accordion'] = render_accordion(request, course, table_of_contents['chapters'])
+        chapters = prepare_chapters_with_grade(user, request, course)
+        context['accordion'] = render_accordion(request, course, chapters)

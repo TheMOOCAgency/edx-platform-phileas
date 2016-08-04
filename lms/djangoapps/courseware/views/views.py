@@ -263,6 +263,7 @@ def jump_to(_request, course_id, location):
     return redirect(redirect_url)
 
 
+@transaction.non_atomic_requests
 @ensure_csrf_cookie
 @ensure_valid_course_key
 @login_required
