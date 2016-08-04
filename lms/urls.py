@@ -1143,3 +1143,15 @@ if settings.FEATURES.get('TMA_ENABLE_FORUM_MESSAGES_API'):
             name='api_forum_messages'
         ),
     )
+
+#Final Grades api
+if settings.FEATURES.get('TMA_ENABLE_FINAL_GRADES_API'):
+    urlpatterns += (
+        url(
+            r'^final_grades/{}/$'.format(
+                settings.COURSE_ID_PATTERN,
+            ),
+            'final_grades.api.get_api',
+            name='grades_api'
+        ),
+    )
