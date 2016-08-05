@@ -96,7 +96,7 @@ from ..module_render import get_module_for_descriptor, get_module, get_module_by
 
 from course_progress.helpers import inject_course_progress_into_context
 from course_rating.helpers import inject_course_ratings_into_context
-from course_info.helpers import inject_custom_accordian_into_context
+
 
 log = logging.getLogger("edx.courseware")
 
@@ -351,9 +351,8 @@ def course_info(request, course_id):
 
         if CourseEnrollment.is_enrolled(request.user, course.id):
             inject_coursetalk_keys_into_context(context, course_key)
-            if settings.FEATURES.get('TMA_COMPLETION_TRACKING'):
+            if settings.FEATURES.get('TMA_ENABLE_COMPLETION_TRACKING'):
                 inject_course_progress_into_context(context, request, course_key)
-                inject_custom_accordian_into_context(context, user, request, course)
 
         return render_to_response('courseware/info.html', context)
 

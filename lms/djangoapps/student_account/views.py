@@ -122,8 +122,8 @@ def login_and_registration_form(request, initial_mode="login"):
             'password_reset_form_desc': json.loads(form_descriptions['password_reset']),
 
             # Include the TMA FEATURES related to logistration
-            'login_captcha': settings.FEATURES.get('TMA_RECAPTCHA_VERIFICATION_LOGIN', False),
-            'registration_captcha': settings.FEATURES.get('TMA_RECAPTCHA_VERIFICATION_REGISTRATION', False),
+            'login_captcha': settings.FEATURES.get('TMA_ENABLE_LOGIN_RECAPTCHA', False),
+            'registration_captcha': settings.FEATURES.get('TMA_ENABLE_REGISTRATION_RECAPTCHA', False),
             'captcha_site_key': settings.RECAPTCHA_SITE_KEY,
         },
         'login_redirect_url': redirect_to,  # This gets added to the query string of the "Sign In" button in header

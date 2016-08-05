@@ -9,7 +9,6 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from xmodule.modulestore.django import modulestore
 
 from course_progress.models import StudentCourseProgress
-from course_progress.helpers import get_leaderboard
 
 
 @login_required
@@ -98,32 +97,3 @@ def get_completion_status(request):
 
     # Return the JSON resposne
     return JsonResponse({'completion_status': completion_status})
-
-def show_leaderboard(request, course_id):
-    """
-    It renders the leaderboard on the bases of
-    the student rank for course completion.
-
-    **GET params**
-        course_id: A valid course is string.
-
-        limit: An integer that defines the number of
-        students to be shown on leaderboard.
-    """
-    try:
-        course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
-    except InvalidKeyError:
-        raise Http404(
-            u"Could not find course with the id: {0}".format(course_id)
-        )
-
-    limit = request.GET.get('limit', 10)
-    leaderboard, total_students = get_leaderboard(course_key, limit)
-
-    return render_to_response(
-        "course_progress/leaderboard.html",
-        {
-            'leaderboard': leaderboard,
-            'total_students': total_students,
-        }
-    )

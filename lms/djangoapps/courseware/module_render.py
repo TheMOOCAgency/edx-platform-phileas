@@ -1051,7 +1051,7 @@ def _invoke_xblock_handler(request, course_id, usage_id, handler, suffix, course
 
         # For course completion tracking
         affects = item_affects_course_progress(request, course_key, suffix, handler, instance)
-        if settings.FEATURES.get('TMA_COMPLETION_TRACKING') and affects:
+        if settings.FEATURES.get('TMA_ENABLE_COMPLETION_TRACKING') and affects:
             update_course_progress(request, course_key, instance.category, [instance.location])
 
         # Name the transaction so that we can view XBlock handlers separately in

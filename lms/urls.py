@@ -16,9 +16,7 @@ from courseware.views.index import CoursewareIndex
 from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
 from student.views import LogoutView
-from course_progress.api import (
-    APICompletionProgress, APIStudentRank, APILeaderBoard
-)
+from course_progress.api import APICompletionProgress
 from forum_messages.api import APIForumMessages
 
 # Uncomment the next two lines to enable the admin:
@@ -1047,7 +1045,7 @@ urlpatterns += (
 )
 
 # Course progress API
-if settings.FEATURES.get('TMA_ENABLE_COURSE_PROGRESS_API'):
+if settings.FEATURES.get('TMA_ENABLE_COMPLETION_API'):
     urlpatterns += (
         url(
             r'^courses/{}/completion_progress/?$'.format(
@@ -1079,58 +1077,15 @@ if settings.FEATURES.get('TMA_ENABLE_COURSE_PROGRESS_API'):
         ),
     )
 
-
-# student rank on the bases of completion progress
-if settings.FEATURES.get('TMA_ENABLE_STUDENT_RANK_API'):
-    urlpatterns += (
-        url(
-            r'^courses/{}/completion_rank/?$'.format(
-                settings.COURSE_ID_PATTERN
-            ),
-            APIStudentRank.as_view(),
-            name='api_student_rank'
-        ),
-    )
-
-# leaderboard API on the bases of completion progress
-if settings.FEATURES.get('TMA_ENABLE_LEADERBOARD_API'):
-    urlpatterns += (
-        url(
-            r'^courses/{}/completion_leaderboard/?$'.format(
-                settings.COURSE_ID_PATTERN
-            ),
-            APILeaderBoard.as_view(),
-            name='completion_leaderboard'
-        ),
-        url(
-            r'^courses/{}/completion_leaderboard/(?P<limit>[0-9]+)/$'.format(
-                settings.COURSE_ID_PATTERN
-            ),
-            APILeaderBoard.as_view(),
-            name='completion_leaderboard_limit'
-        ),
-    )
-
-# leaderboard view on the bases of completion progress
-if settings.FEATURES.get('TMA_ENABLE_LEADERBOARD_VIEW'):
-    urlpatterns += (
-        url(
-            r'^courses/{}/completion_leaderboard/view/?$'.format(
-                settings.COURSE_ID_PATTERN
-            ),
-            'course_progress.views.show_leaderboard',
-            name='show_leaderboard'
-        ),
-    )
-
 # Course rating
-urlpatterns += (
-    url(
-        r'^rate_course/',
-        'course_rating.views.rate_course',
-        name='rate_course'
-    ),
-)
+if settings.FEATURES.get('TMA_ENABLE_COURSE_RATING'):
+    urlpatterns += (
+        url(
+            r'^rate_course/',
+            'course_rating.views.rate_course',
+            name='rate_course'
+        ),
+    )
 
 # Forum messages
 if settings.FEATURES.get('TMA_ENABLE_FORUM_MESSAGES_API'):

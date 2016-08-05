@@ -70,29 +70,6 @@ def get_student_rank(student_id, course_key):
 
     return rank, total_students
 
-def get_leaderboard(course_key, limit):
-    course_id = course_key.to_deprecated_string()
-    total_students = CourseEnrollment.objects.filter(course_id=course_key, is_active=True).count()
-
-    progress_set = StudentCourseProgress.objects.filter(
-        course_id=course_key, overall_progress__gt=0
-    ).order_by(
-        '-overall_progress'
-    )[:limit]
-
-    leaderboard = []
-    for index, student_progress in enumerate(progress_set):
-        leaderboard.append({
-            'student': {
-                'name': student_progress.student.profile.name,
-                'profile_image_url': get_profile_image_urls_for_user(student_progress.student)['medium']
-            },
-            'rank': index + 1,
-            'percentage': student_progress.overall_progress
-        })
-
-    return leaderboard, total_students
-
 def item_affects_course_progress(request, course_key, suffix, handler, instance):
     suffix_list = [
         'problem_check',

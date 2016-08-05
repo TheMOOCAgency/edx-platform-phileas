@@ -18,11 +18,7 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from opaque_keys import InvalidKeyError
 
 from course_progress.models import StudentCourseProgress
-from course_progress.helpers import (
-    get_student_rank,
-    get_leaderboard,
-    make_usage_id
-)
+from course_progress.helpers import make_usage_id
 
 
 class APICompletionProgress(APIView):
@@ -115,111 +111,5 @@ class APICompletionProgress(APIView):
         return Response(
             data={
                 'progress': progress
-            }
-        )
-
-
-class APIStudentRank(APIView):
-    """
-        **Use Cases**
-
-            Get the student rank on the bases of
-                course completion progress.
-            Also fetches the total number of enrollments,
-                that usually needs to be show along with rank.
-
-        **Example Requests**
-
-            GET /courses/course-v1:moocagency+M101+2016_T2/completion_rank/
-
-        **Response Values**
-
-            If no course exists with the specified course ID, an HTTP 400 "Bad
-            Request" response is returned.
-
-            The HTTP 200 response has the rank.
-    """
-    authentication_classes = (
-        OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser, JwtAuthentication
-    )
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request, course_id):
-        """
-        GET /courses/course-v1:moocagency+M101+2016_T2/completion_rank/
-        """
-        rank = None
-
-        try:
-            course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
-        except InvalidKeyError:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={
-                    'error_code': 'course_id_not_valid'
-                }
-            )
-
-        # get the student rank and total number of students
-        student_rank, total_students = get_student_rank(request.user.id, course_key)
-
-        return Response(
-            data={
-                'student_rank': student_rank,
-                'total_students': total_students
-            }
-        )
-
-
-class APILeaderBoard(APIView):
-    """
-        **Use Cases**
-
-            Get the student rank on the bases of course completion progress.
-            Along with the rank it also gets the useful information about
-            student, like name, profile image url, completion percent.
-
-        **Example Requests**
-
-            GET /courses/course-v1:moocagency+M101+2016_T2/completion_leaderboard
-            GET /courses/course-v1:moocagency+M101+2016_T2/completion_leaderboard/10
-
-            If no limit (i.e. 10 in above URL) is passed then it will take top 10 students by default.
-
-        **Response Values**
-
-            If no course exists with the specified course ID, an HTTP 400 "Bad
-            Request" response is returned.
-
-            The HTTP 200 response has the list of the leaderboard students with rank.
-    """
-    authentication_classes = (
-        OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser, JwtAuthentication
-    )
-
-    def get(self, request, course_id, limit=10):
-        """
-        GET /courses/course-v1:moocagency+M101+2016_T2/completion_leaderboard
-        GET /courses/course-v1:moocagency+M101+2016_T2/completion_leaderboard/10
-        """
-        leaderboard = []
-
-        try:
-            course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
-        except InvalidKeyError:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={
-                    'error_code': 'course_id_not_valid'
-                }
-            )
-
-        # get the student rank and total number of students
-        leaderboard, total_students = get_leaderboard(course_key, limit)
-
-        return Response(
-            data={
-                'leaderboard': leaderboard,
-                'total_students': total_students
             }
         )

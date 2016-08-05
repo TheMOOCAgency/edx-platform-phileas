@@ -1164,7 +1164,7 @@ def login_user(request, error=""):  # pylint: disable=too-many-statements,unused
                 "value": _('There was an error receiving your login information. Please email us.'),
             })  # TODO: this should be status code 400
 
-        if settings.FEATURES.get('TMA_RECAPTCHA_VERIFICATION_LOGIN') and \
+        if settings.FEATURES.get('TMA_ENABLE_LOGIN_RECAPTCHA') and \
         not recaptcha_verified(request):
             return JsonResponse({
                 "success": False,
@@ -1583,7 +1583,7 @@ def create_account_with_params(request, params):
     params = dict(params.items())
 
     # Check for reCaptcha
-    if settings.FEATURES.get('TMA_RECAPTCHA_VERIFICATION_REGISTRATION') and \
+    if settings.FEATURES.get('TMA_ENABLE_REGISTRATION_RECAPTCHA') and \
     not recaptcha_verified(request):
         raise ValidationError({
             'access_token': [_('Please show you are not a robot.')]
