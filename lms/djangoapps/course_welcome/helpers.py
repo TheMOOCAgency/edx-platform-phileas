@@ -44,7 +44,7 @@ def prepare_chapters_with_grade(student, request, course):
 
     # find the passing grade for the course
     nonzero_cutoffs = [cutoff for cutoff in course.grade_cutoffs.values() if cutoff > 0]
-    success_cutoff = min(nonzero_cutoffs) if nonzero_cutoffs else None
+    success_cutoff = min(nonzero_cutoffs) * 100 if nonzero_cutoffs else 0
 
     chapters = []
     section_index = 0
