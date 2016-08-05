@@ -1110,3 +1110,14 @@ if settings.FEATURES.get('TMA_ENABLE_FINAL_GRADES_API'):
             name='grades_api'
         ),
     )
+
+# student pass fail api
+urlpatterns += (
+    url(
+        r'^pass_fail/{}/(?P<section_id>[^/]*)/$'.format(
+                settings.COURSE_ID_PATTERN
+            ),
+        'pass_fail.api.get_api',
+        name='pass_fail_api'
+    ),
+)
