@@ -11,6 +11,7 @@ from openedx.core.lib.course_tabs import CourseTabPluginManager
 from student.models import CourseEnrollment
 from xmodule.tabs import CourseTab, CourseTabList, key_checker
 
+from course_welcome.tabs import CourseWelcomeTab
 
 class EnrolledTab(CourseTab):
     """
@@ -306,6 +307,10 @@ def get_course_tab_list(request, course):
 
     # Add in any dynamic tabs, i.e. those that are not persisted
     course_tab_list += _get_dynamic_tabs(course, user)
+
+    # Add course welcome tab
+    course_tab_list.insert(0, CourseWelcomeTab({}) )
+
     return course_tab_list
 
 

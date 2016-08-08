@@ -9,6 +9,7 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from xmodule.modulestore.django import modulestore
 
 from course_progress.models import StudentCourseProgress
+from course_progress.helpers import get_overall_progress
 
 
 @login_required
@@ -29,17 +30,10 @@ def get_overall_course_progress(request):
 
     Author: Naresh Makwana
     """
-    overall_progress = 0
-
     course_id = request.GET.get('course_id')
-
     course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
 
-    try:
-        student_course_progress = StudentCourseProgress.objects.get(student=request.user.id, course_id=course_key)
-        overall_progress = student_course_progress.overall_progress
-    except StudentCourseProgress.DoesNotExist:
-        pass
+    overall_progress = get_overall_progress(request.user.id, course_key)
 
     return JsonResponse({'overall_progress': overall_progress})
 

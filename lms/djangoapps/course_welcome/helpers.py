@@ -15,7 +15,7 @@ from util.db import outer_atomic
 from courseware import grades
 
 
-def prepare_chapters_with_grade(student, request, course):
+def prepare_chapters_with_grade(request, course):
     '''
     Create chapters with grade details.
 
@@ -34,6 +34,8 @@ def prepare_chapters_with_grade(student, request, course):
     NOTE: assumes that if we got this far, user has access to course.  Returns
     [] if this is not the case.
     '''
+    student = request.user
+
     with outer_atomic():
         field_data_cache = grades.field_data_cache_for_grading(course, student)
         scores_client = ScoresClient.from_field_data_cache(field_data_cache)
@@ -68,22 +70,33 @@ def prepare_chapters_with_grade(student, request, course):
 
     return chapters
 
-def render_accordion(request, course, table_of_contents):
+def render_accordion(request, course):
     """
     Returns the HTML that renders the navigation for the given course.
     Expects the table_of_contents to have data on each chapter and section,
     including which ones are completed.
     """
-    context = dict(
-        [
-            ('toc', table_of_contents),
-            ('course_id', unicode(course.id)),
-            ('csrf', csrf(request)['csrf_token']),
-        ]
-    )
-    return render_to_string('course_info/accordion.html', context)
+    context = {
+        'chapters': prepare_chapters_with_grade(request, course),
+        'course_id': unicode(course.id),
+        'csrf': csrf(request)['csrf_token'],
+    }
 
-def inject_custom_accordian_into_context(context, user, request, course):
-        # get the custom accordian to be shown on course home
-        chapters = prepare_chapters_with_grade(user, request, course)
-        context['accordion'] = render_accordion(request, course, chapters)
+    return render_to_string('course_welcome/accordion.html', context)
+
+def get_final_score(request, course):
+    """
+    To get the final score for the user in
+    particular course.
+    """
+    grade_summary = {}
+    student = request.user
+
+    try:
+        grade_summary = grades.grade(student, request, course)
+    except:
+        pass
+
+    final_grade = grade_summary.get('percent', 0)
+
+    return int(final_grade * 100)

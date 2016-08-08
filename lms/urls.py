@@ -382,8 +382,15 @@ urlpatterns += (
         r'^courses/{}/$'.format(
             settings.COURSE_ID_PATTERN,
         ),
-        'courseware.views.views.course_info',
+        'course_welcome.views.course_welcome',
         name='course_root',
+    ),
+    url(
+        r'^courses/{}/welcome$'.format(
+            settings.COURSE_ID_PATTERN,
+        ),
+        'course_welcome.views.course_welcome',
+        name='welcome',
     ),
     url(
         r'^courses/{}/info$'.format(

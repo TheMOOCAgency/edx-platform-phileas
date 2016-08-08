@@ -170,3 +170,18 @@ def make_usage_id(course_key, category, url_name):
             course_key, category, url_name
         )
     )
+
+def get_overall_progress(student_id, course_key):
+    """
+    Get the course completion percent
+    for the given student Id in given course.
+    """
+    overall_progress = 0
+
+    try:
+        student_course_progress = StudentCourseProgress.objects.get(student=student_id, course_id=course_key)
+        overall_progress = student_course_progress.overall_progress
+    except StudentCourseProgress.DoesNotExist:
+        pass
+
+    return overall_progress
