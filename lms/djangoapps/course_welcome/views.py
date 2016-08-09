@@ -1,5 +1,7 @@
 """
 Course welcome views functions
+
+Author: Naresh Makwana
 """
 import logging
 import urllib
@@ -52,11 +54,17 @@ def course_welcome(request, course_id):
             # control.
             raise Http404("Course not found.")
 
+    # Get the final score for the student
+    score = get_final_score(request, course)
+    # Set badge if the score is greater or equal to 60%
+    badge = score >= 60
+
     context = {
         'request': request,
         'course_id': course_key.to_deprecated_string(),
         'course': course,
-        'score': get_final_score(request, course),
+        'score': score,
+        'badge': badge,
         'overall_progress': get_overall_progress(request.user.id, course_key),
         'accordion': render_accordion(request, course),
     }
