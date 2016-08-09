@@ -268,6 +268,13 @@ COURSE_URLS = patterns(
         name='registration_code_details',
     ),
 )
+
+# TMA change course root if welcome page is enabled
+course_root_url = (
+    'courseware.views.views.course_info',
+    'course_welcome.views.course_welcome',
+)[int(settings.FEATURES.get('TMA_ENABLE_COURSE_WELCOME_PAGE', False))]
+
 urlpatterns += (
     # jump_to URLs for direct access to a location in the course
     url(
@@ -382,15 +389,8 @@ urlpatterns += (
         r'^courses/{}/$'.format(
             settings.COURSE_ID_PATTERN,
         ),
-        'course_welcome.views.course_welcome',
+        course_root_url,
         name='course_root',
-    ),
-    url(
-        r'^courses/{}/welcome$'.format(
-            settings.COURSE_ID_PATTERN,
-        ),
-        'course_welcome.views.course_welcome',
-        name='welcome',
     ),
     url(
         r'^courses/{}/info$'.format(
@@ -1128,3 +1128,15 @@ urlpatterns += (
         name='pass_fail_api'
     ),
 )
+
+# course welcome page
+if settings.FEATURES.get('TMA_ENABLE_COURSE_WELCOME_PAGE'):
+    urlpatterns += (
+        url(
+            r'^courses/{}/welcome$'.format(
+                settings.COURSE_ID_PATTERN,
+            ),
+            'course_welcome.views.course_welcome',
+            name='welcome',
+        ),
+    )

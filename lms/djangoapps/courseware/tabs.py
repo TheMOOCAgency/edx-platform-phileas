@@ -308,8 +308,9 @@ def get_course_tab_list(request, course):
     # Add in any dynamic tabs, i.e. those that are not persisted
     course_tab_list += _get_dynamic_tabs(course, user)
 
-    # Add course welcome tab
-    course_tab_list.insert(0, CourseWelcomeTab({}) )
+    # Add course welcome tab if feature is enabled
+    if settings.FEATURES.get('TMA_ENABLE_COURSE_WELCOME_PAGE'):
+        course_tab_list.insert(0, CourseWelcomeTab({}) )
 
     return course_tab_list
 
