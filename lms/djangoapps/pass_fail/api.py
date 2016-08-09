@@ -54,6 +54,7 @@ def get_api(request,course_id,section_id):
 
     chapters = []
     section_index = 0
+    passed = False
     for chapter in courseware_summary:
         if not chapter['display_name'] == "hidden":
             for section in chapter['sections']:
