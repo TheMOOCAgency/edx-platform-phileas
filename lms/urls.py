@@ -1140,3 +1140,15 @@ if settings.FEATURES.get('TMA_ENABLE_COURSE_WELCOME_PAGE'):
             name='welcome',
         ),
     )
+
+# tutor tag api
+if settings.FEATURES.get('TMA_TUTOR_FLAG'):
+    urlpatterns += (
+        url(
+            r'^tutor_tag/{}/(?P<discussion_id>[^/]*)/$'.format(
+                    settings.COURSE_ID_PATTERN
+                ),
+            'tutor_tag.api.get_api',
+            name='tutor_tag_api'
+        ),
+    )
