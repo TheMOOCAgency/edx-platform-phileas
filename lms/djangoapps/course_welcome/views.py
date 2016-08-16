@@ -20,8 +20,7 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from util.views import ensure_valid_course_key
 from edxmako.shortcuts import render_to_response
 
-from course_welcome.helpers import render_accordion, get_final_score
-from course_progress.helpers import get_overall_progress
+from course_welcome.helpers import prepare_sections_with_grade
 
 log = logging.getLogger("edx.courseware")
 
@@ -54,19 +53,11 @@ def course_welcome(request, course_id):
             # control.
             raise Http404("Course not found.")
 
-    # Get the final score for the student
-    score = get_final_score(request, course)
-    # Set badge if the score is greater or equal to 60%
-    badge = score >= 60
-
     context = {
         'request': request,
         'course_id': course_key.to_deprecated_string(),
         'course': course,
-        'score': score,
-        'badge': badge,
-        'overall_progress': get_overall_progress(request.user.id, course_key),
-        'accordion': render_accordion(request, course),
+        'sections': prepare_sections_with_grade(request, course),
     }
 
     return render_to_response('course_welcome/welcome.html', context)
