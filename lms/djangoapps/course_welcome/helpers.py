@@ -105,7 +105,7 @@ def prepare_sections_with_grade(request, course):
             section_grades[section['url_name']] = {
                 'earned': earned,
                 'total': total,
-                'passed': section_score >= 0.6
+                'css_class': ('text-red', 'text-green',)[int(section_score >= 0.6)] if total > 0 else ''
             }
 
     sections = list()
@@ -147,12 +147,18 @@ def prepare_sections_with_grade(request, course):
 
             # get the points
             section_points = section_grades.get(section.url_name)
-            section_points_class = ''
-            if section.graded:
-                if section_points.get('passed'):
-                    section_points_class = 'text-green'
-                else:
-                    section_points_class = 'text-red'
+
+            if hidden:
+                sections.append({
+                    'hidden': True,
+                    'week': "WEEK {week}: ".format(week=section_index),
+                    'points': {
+                        'total': int(section_points.get('total')),
+                        'earned': 0,
+                        'css_class': 'text-disabled'
+                    },
+                })
+                continue
 
             units = list()
             for index, unit in enumerate(section.get_display_items()):
@@ -209,11 +215,11 @@ def prepare_sections_with_grade(request, course):
                 'points': {
                     'total': int(section_points.get('total')),
                     'earned': int(section_points.get('earned')),
-                    'css_class': section_points_class
+                    'css_class': section_points.get('css_class')
                 },
                 'podium': True,
                 'units': units,
-                'week': "WEEK {week}: ".format(week=section_index+1),
+                'week': "WEEK {week}: ".format(week=section_index),
             }
             sections.append(section_context)
 
