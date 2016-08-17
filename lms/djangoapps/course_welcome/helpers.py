@@ -145,20 +145,20 @@ def prepare_sections_with_grade(request, course):
                 section.hide_from_toc
             )
 
-            # get the points
-            section_points = section_grades.get(section.url_name)
-
             if hidden:
                 sections.append({
                     'hidden': True,
                     'week': "WEEK {week}: ".format(week=section_index),
                     'points': {
-                        'total': int(section_points.get('total')),
+                        'total': 0,
                         'earned': 0,
                         'css_class': 'text-disabled'
                     },
                 })
                 continue
+
+            # get the points
+            section_points = section_grades.get(section.url_name, {})
 
             units = list()
             for index, unit in enumerate(section.get_display_items()):
