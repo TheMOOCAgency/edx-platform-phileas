@@ -41,12 +41,13 @@ def workflow(request):
         }
         subject = "Enrollment Request for '{}' ({}) course".format(course.display_name,course.id)
         message = render_to_string('emails/enrollment_request.txt', context)
+        html_message = render_to_string('emails/enrollment_request.txt', context)
         from_address = user.email
         dest_addr = settings.ENROLLMENT_REQUEST_EMAIL
         student_request = RequestEnroll(student=request.user,course_id=course.id,enrollment_status='requested')
         student_request.save()
         try:
-            mail.send_mail(subject, message, from_address, [dest_addr], fail_silently=False)
+            mail.send_mail(subject, message, from_address, [dest_addr], fail_silently=False,html_message=message)
         except Exception as e:
             return JsonResponse(
                 {
