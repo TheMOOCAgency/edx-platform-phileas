@@ -2083,6 +2083,9 @@ INSTALLED_APPS = (
 
     # course info
     'course_welcome',
+
+    #enrollment workflow added by chintan joshi
+    'enrollment_workflow',
 )
 
 # Migrations which are not in the standard module "migrations"

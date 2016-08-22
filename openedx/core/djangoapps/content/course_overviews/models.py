@@ -90,6 +90,7 @@ class CourseOverview(TimeStampedModel):
     enrollment_start = DateTimeField(null=True)
     enrollment_end = DateTimeField(null=True)
     enrollment_domain = TextField(null=True)
+    enrollment_workflow = TextField(null=True)
     invitation_only = BooleanField(default=False)
     max_student_enrollments_allowed = IntegerField(null=True)
 
@@ -180,6 +181,7 @@ class CourseOverview(TimeStampedModel):
 
             catalog_visibility=course.catalog_visibility,
             short_description=CourseDetails.fetch_about_attribute(course.id, 'short_description'),
+            enrollment_workflow=CourseDetails.fetch_about_attribute(course.id, 'enrollment_workflow'),
             effort=CourseDetails.fetch_about_attribute(course.id, 'effort'),
             course_video_url=CourseDetails.fetch_video_url(course.id),
             self_paced=course.self_paced,

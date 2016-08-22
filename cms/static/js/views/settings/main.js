@@ -114,7 +114,8 @@ var DetailsView = ValidatingView.extend({
         var bannerImageURL = this.model.get('banner_image_asset_path');
         this.$el.find('#banner-image-url').val(bannerImageURL);
         this.$el.find('#banner-image').attr('src', bannerImageURL);
-
+        var enrollmentWorkflow = this.model.get('enrollment_workflow');
+        this.$el.find('#enrollment-workflow').val(enrollmentWorkflow);
         var videoThumbnailImageURL = this.model.get('video_thumbnail_image_asset_path');
         this.$el.find('#video-thumbnail-image-url').val(videoThumbnailImageURL);
         this.$el.find('#video-thumbnail-image').attr('src', videoThumbnailImageURL);
@@ -177,7 +178,8 @@ var DetailsView = ValidatingView.extend({
         'course_settings_learning_fields': 'course-settings-learning-fields',
         'add_course_learning_info': 'add-course-learning-info',
         'add_course_instructor_info': 'add-course-instructor-info',
-        'course_learning_info': 'course-learning-info'
+        'course_learning_info': 'course-learning-info',
+        'enrollment_workflow': 'enrollment-workflow'
     },
 
     addLearningFields: function() {
@@ -299,6 +301,7 @@ var DetailsView = ValidatingView.extend({
             this.model.set('self_paced', JSON.parse(event.currentTarget.value));
             break;
         case 'course-language':
+        case 'enrollment-workflow':
         case 'course-effort':
         case 'course-title':
         case 'course-subtitle':

@@ -1,0 +1,68 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from django.conf import settings %>
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </head>
+  <body bgcolor="#f1f1f1" text="#000000">
+      <table width="100%">
+        <tbody>
+          <tr>
+            <td style="padding:50px;background:#f1f1f1;">
+              <table style="background:#FFF;" width="100%">
+                <tbody>
+                  <tr style="background:#1795C5;text-align:left;">
+                    <td style="height:70px;padding:10px 25px">
+                      <a href="http://drc2.themoocagency.com/" style="text-decoration:none;color:#fff;font-size:20px">[The MOOC Agency]</a>
+                    </td>
+                  </tr>
+                  <tr style="height:400px;">
+                    <td style="padding:50px;font-family:sans-serif;">
+            <h2>
+              ${_("Administrator")},
+            </h2>
+            
+            <h4>
+              ${_("{student_name} has requested enrollment for the course <b>{course_name}</b>.").format(student_name=student.username, course_name=course_name)}
+            </h4>
+                      
+                      <p style="font-size:14px;line-height:20px;">
+              ${_("Please take an action, ")}
+
+                <a href="http://${ site }/request_granted/${course_id}/${ student.id }" style="text-decoration:none;color:#00B700;width:auto;font-weight:bold;">
+                  Grant enrollment
+                </a>
+<a href="http://${ site }/request_rejected/${course_id}/${ student.id }" style="text-decoration:none;color:#FC0002;width:auto;font-weight:bold;">
+                  Reject request
+                </a>
+            </p>
+
+            
+
+            <h3 style="margin-top:40px;line-height:30px;">
+              Warm Regards, <br>
+              ${_(settings.PLATFORM_NAME)} Family
+            </h3>
+            
+
+            <hr style="border-top:2px solid #1795C5; margin-bottom: 35px;">
+
+            <p style="font-size:14px;line-height:20px;">
+            ${_("This is system generated e-mail. If you didn't request this, you don't need to do anything; Please do not reply to this e-mail. " )}
+          
+            </p>
+                      
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+    </div>
+    <br>
+  </body>
+</html>

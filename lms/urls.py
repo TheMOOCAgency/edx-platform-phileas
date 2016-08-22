@@ -1152,3 +1152,34 @@ if settings.FEATURES.get('TMA_TUTOR_FLAG'):
             name='tutor_tag_api'
         ),
     )
+
+# added by Chintan Joshi for enrollment workflow
+urlpatterns += (
+    url(
+        r'^enrollment_workflow',
+        'enrollment_workflow.views.workflow',
+        name='enrollment_workflow'
+        ),
+)
+
+# enrollment Granted
+urlpatterns += (
+    url(
+        r'^request_granted/{}/(?P<student_id>[^/]*)/$'.format(
+        settings.COURSE_ID_PATTERN
+        ),
+        'enrollment_workflow.views.granted',
+        name='enrollment_workflow_granted'
+        ),
+)
+
+# enrollment Rejected
+urlpatterns += (
+    url(
+        r'^request_rejected/{}/(?P<student_id>[^/]*)/$'.format(
+        settings.COURSE_ID_PATTERN
+        ),
+        'enrollment_workflow.views.rejected',
+        name='enrollment_workflow_rejected'
+        ),
+)

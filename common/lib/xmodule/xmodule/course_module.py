@@ -181,6 +181,7 @@ class CourseFields(object):
     )
 
     wiki_slug = String(help=_("Slug that points to the wiki for this course"), scope=Scope.content)
+    enrollment_workflow = String(help=_("Slug that indicates type of enrollment"), default="nre", scope=Scope.settings)
     enrollment_start = Date(help=_("Date that enrollment for this class is opened"), scope=Scope.settings)
     enrollment_end = Date(help=_("Date that enrollment for this class is closed"), scope=Scope.settings)
     start = Date(
