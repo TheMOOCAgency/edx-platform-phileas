@@ -2946,3 +2946,6 @@ REDIRECT_CACHE_KEY_PREFIX = 'redirects'
 RECAPTCHA_VERIFY_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify'
 RECAPTCHA_SITE_KEY = None
 RECAPTCHA_SECRETE_KEY = None
+
+# Email Address where the enorllment request will go.
+ENROLLMENT_REQUEST_EMAIL = "enrollment@request.com"
