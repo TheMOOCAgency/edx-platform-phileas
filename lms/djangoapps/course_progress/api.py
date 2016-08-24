@@ -79,7 +79,7 @@ class APICompletionProgress(APIView):
                 }
             )
         except StudentCourseProgress.DoesNotExist:
-            pass
+            course_progress = None
 
         if course_progress:
             if unit:
