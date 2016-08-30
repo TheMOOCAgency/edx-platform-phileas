@@ -122,3 +122,30 @@ def get_news_content(request, page_id=None):
     return JsonResponse({
         'content': content
     })
+
+@login_required
+@ensure_csrf_cookie
+@require_http_methods(("GET"))
+def news(request, page_id=None):
+    """
+    To make the content of the page visible
+    To the student.
+    """
+    content = """<p class="error">Either you don't
+    have the permission to acccess the content of the page OR
+    the requested page does not exists</p>
+    """
+    title = ''
+
+    try:
+        page = NewsPage.objects.get(pk=page_id)
+        if page.visible or request.user.is_staff:
+            content = page.content
+            title = page.title
+    except NewsPage.DoesNotExist:
+        pass
+
+    return render_to_response('static_templates/student_view.html', {
+        'content': content,
+        'title': title
+    })
