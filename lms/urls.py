@@ -1152,3 +1152,13 @@ if settings.FEATURES.get('TMA_TUTOR_FLAG'):
             name='tutor_tag_api'
         ),
     )
+
+# Platform wide news
+if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS'):
+    urlpatterns += (
+        url(
+            r'^news/(?P<page_id>[0-9]*)/$',
+            'news.views.news',
+            name="news"
+        ),
+    )

@@ -145,7 +145,7 @@ def news(request, page_id=None):
     except NewsPage.DoesNotExist:
         pass
 
-    return render_to_response('static_templates/student_view.html', {
+    return render_to_response('static_templates/news.html', {
         'content': content,
         'title': title
     })
