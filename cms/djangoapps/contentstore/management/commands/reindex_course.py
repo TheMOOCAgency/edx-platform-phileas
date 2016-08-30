@@ -62,6 +62,7 @@ class Command(BaseCommand):
         return result
 
     def handle(self, *args, **options):
+        return  # TODO: NARESH, remove for production servers
         """
         By convention set by Django developers, this method actually executes command's actions.
         So, there could be no better docstring than emphasize this once again.
