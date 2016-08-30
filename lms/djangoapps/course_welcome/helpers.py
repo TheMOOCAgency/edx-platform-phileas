@@ -85,6 +85,9 @@ def prepare_sections_with_grade(request, course):
     # find the course progress
     progress = get_course_progress(student, course.id)
 
+    # prepare a list of discussions participated by user
+    discussions_participated = []
+
     # get courseware summary
     with outer_atomic():
         field_data_cache = grades.field_data_cache_for_grading(course, student)
@@ -211,13 +214,13 @@ def prepare_sections_with_grade(request, course):
                 'url_name': section.url_name,
                 'hidden': hidden,
                 'rank': 1,
-                'badge': True,
+                'competency': int(section_points.get('earned')) == int(section_points.get('total')),
                 'points': {
                     'total': int(section_points.get('total')),
                     'earned': int(section_points.get('earned')),
                     'css_class': section_points.get('css_class')
                 },
-                'podium': True,
+                'participation': section.url_name in discussions_participated,
                 'units': units,
                 'week': "WEEK {week}: ".format(week=section_index),
             }
