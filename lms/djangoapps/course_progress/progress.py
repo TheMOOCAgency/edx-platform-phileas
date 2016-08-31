@@ -61,6 +61,16 @@ def update_course_progress(request, course_key, module_type, usage_keys):
     # Get course progress dict
     progress = student_course_progress.progress
 
+    # Update course structure
+    new_progress = {}
+    default_progress_dict = get_default_course_progress( course_struct.get('blocks', []), root )
+    for default_block_id, default_block in default_progress_dict.items():
+        progress_block = progress.get(default_block_id, {})
+        stored_progress = progress_block.get('progress', 0)
+        default_block.update({'progress': stored_progress})
+        new_progress.update({default_block_id: default_block})
+    progress = new_progress
+
     # increase progress if attempted or graded and not already updated
     updated_units = []
     for usage_key in usage_keys:
