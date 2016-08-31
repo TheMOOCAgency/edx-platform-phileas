@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 
 
 class NewsPage(models.Model):
+    class Meta(object):
+        app_label = "news"
+
     title = models.CharField(max_length=30)
     content = models.TextField(blank=True)
     visible = models.BooleanField(default=True)
