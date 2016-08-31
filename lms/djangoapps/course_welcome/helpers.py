@@ -22,6 +22,7 @@ from util import milestones_helpers
 from util.db import outer_atomic
 from util.model_utils import slugify
 
+from forum_messages.views import get_section_list as get_discussions_participated
 from course_progress.models import StudentCourseProgress
 
 
@@ -86,7 +87,11 @@ def prepare_sections_with_grade(request, course):
     progress = get_course_progress(student, course.id)
 
     # prepare a list of discussions participated by user
-    discussions_participated = []
+    discussions_participated = get_discussions_participated(
+        request,
+        course.id.to_deprecated_string(),
+        student.id
+    )
 
     # get courseware summary
     with outer_atomic():
@@ -98,21 +103,20 @@ def prepare_sections_with_grade(request, course):
     )
 
     section_grades = {}
-    for chapter in courseware_summary:
-        if chapter['display_name'] == "hidden":
-            continue
-        for section in chapter['sections']:
-            earned = section['section_total'].earned
-            total = section['section_total'].possible
-            section_score = earned / total if earned > 0 and total > 0 else 0
-            section_grades[section['url_name']] = {
-                'earned': earned,
-                'total': total,
-                'css_class': ('text-red', 'text-green',)[int(section_score >= 0.6)] if total > 0 else ''
-            }
+    for section in courseware_summary:
+        earned = 0
+        total = 0
+        for sub_section in section['sections']:
+            earned += sub_section['section_total'].earned
+            total += sub_section['section_total'].possible
 
-    sections = list()
-    chapters = course_module.get_display_items()
+        section_score = earned / total if earned > 0 and total > 0 else 0
+        section_grades[section['url_name']] = {
+            'earned': earned,
+            'total': total,
+            'css_class': ('text-red', 'text-green')[int(section_score >= 0.6)] if total > 0 else ''
+        }
+
     # Check for content which needs to be completed
     # before the rest of the content is made available
     required_content = milestones_helpers.get_required_content(course, student)
@@ -126,8 +130,11 @@ def prepare_sections_with_grade(request, course):
 
     section_index = 0
     sections = list()
-    for chapter in chapters:
-        # Only show required content, if there is required content
+    for chapter in course_module.get_display_items():
+        # increment the section count
+        section_index += 1
+
+        # Only consider required content, if there is required content
         # chapter.hide_from_toc is read-only (bool)
         display_id = slugify(chapter.display_name_with_default_escaped)
         local_hide_from_toc = False
@@ -135,36 +142,34 @@ def prepare_sections_with_grade(request, course):
             if unicode(chapter.location) not in required_content:
                 local_hide_from_toc = True
 
-        # Skip the current chapter if a hide flag is tripped
+        # Mark as hidden and Skip the current chapter if a hide flag is tripped
         if chapter.hide_from_toc or local_hide_from_toc:
+            sections.append({
+                'hidden': True,
+                'week': "WEEK {week}: ".format(week=section_index),
+                'points': {
+                    'total': 0,
+                    'earned': 0,
+                    'css_class': 'text-disabled'
+                },
+            })
             continue
 
-        for section in chapter.get_display_items():
-            # increment the section count
-            section_index += 1
-            # Set hidden status of the section if it is gated/hidden from the user
+        # get the points
+        section_points = section_grades.get(chapter.url_name, {})
+
+        units = list()
+        for sequential in chapter.get_display_items():
+            # Set hidden status of the sequential if it is gated/hidden from the user
             hidden = (
-                gated_content and unicode(section.location) in gated_content or
-                section.hide_from_toc
+                gated_content and unicode(sequential.location) in gated_content or
+                sequential.hide_from_toc
             )
 
             if hidden:
-                sections.append({
-                    'hidden': True,
-                    'week': "WEEK {week}: ".format(week=section_index),
-                    'points': {
-                        'total': 0,
-                        'earned': 0,
-                        'css_class': 'text-disabled'
-                    },
-                })
                 continue
 
-            # get the points
-            section_points = section_grades.get(section.url_name, {})
-
-            units = list()
-            for index, unit in enumerate(section.get_display_items()):
+            for index, unit in enumerate(sequential.get_display_items()):
                 css_class = 'dark-gray'
                 if unit.graded:
                     total_excercises = 0
@@ -192,7 +197,7 @@ def prepare_sections_with_grade(request, course):
                         if unit_max_score and unit_score / unit_max_score < success_cutoff:
                             css_class = 'red'
 
-                position = index + 1
+                position = index + 1  # For jumping to the unit directly
                 unit_context = {
                     'display_name': unit.display_name_with_default_escaped,
                     'position': position,
@@ -202,29 +207,29 @@ def prepare_sections_with_grade(request, course):
                         args=[
                             course.id,
                             chapter.url_name,
-                            section.url_name,
+                            sequential.url_name,
                             position
                         ]
                     )
                 }
                 units.append(unit_context)
 
-            section_context = {
-                'display_name': section.display_name_with_default_escaped,
-                'url_name': section.url_name,
-                'hidden': hidden,
-                'rank': 1,
-                'competency': int(section_points.get('earned')) == int(section_points.get('total')),
-                'points': {
-                    'total': int(section_points.get('total')),
-                    'earned': int(section_points.get('earned')),
-                    'css_class': section_points.get('css_class')
-                },
-                'participation': section.url_name in discussions_participated,
-                'units': units,
-                'week': "WEEK {week}: ".format(week=section_index),
-            }
-            sections.append(section_context)
+        section_context = {
+            'display_name': chapter.display_name_with_default_escaped,
+            'url_name': chapter.url_name,
+            'hidden': False,
+            'rank': 1,
+            'competency': int(section_points.get('earned')) == int(section_points.get('total')),
+            'points': {
+                'total': int(section_points.get('total')),
+                'earned': int(section_points.get('earned')),
+                'css_class': section_points.get('css_class')
+            },
+            'participation': chapter.url_name in discussions_participated,
+            'units': units,
+            'week': "WEEK {week}: ".format(week=section_index),
+        }
+        sections.append(section_context)
 
     return sections
 
