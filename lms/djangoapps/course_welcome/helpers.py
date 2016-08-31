@@ -191,11 +191,12 @@ def prepare_sections_with_grade(request, course):
                                 unit_max_score += capa_module.max_score()
                                 unit_score += capa_module.get_score().get('score')
 
-                    css_class = 'blue'
-                    if attempted_excercises == total_excercises:
-                        css_class = 'green'
-                        if unit_max_score and unit_score / unit_max_score < success_cutoff:
-                            css_class = 'red'
+                    if total_excercises:
+                        css_class = 'blue'
+                        if attempted_excercises == total_excercises:
+                            css_class = 'green'
+                            if unit_max_score and unit_score / unit_max_score < success_cutoff:
+                                css_class = 'red'
 
                 position = index + 1  # For jumping to the unit directly
                 unit_context = {
