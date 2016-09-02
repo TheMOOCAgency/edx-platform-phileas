@@ -1,6 +1,7 @@
 """
 Course info helpers
 """
+from collections import OrderedDict
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -148,7 +149,7 @@ def prepare_sections_with_grade(request, course):
     urlname_chapters = {}
     for student_chap in student_chapters:
         urlname_chapters.update({student_chap.url_name:student_chap})
-    final_chapters = {}
+    final_chapters = OrderedDict()
     for chapter_index, chapter in enumerate(staff_chapters):
         fin_chap = urlname_chapters.get(chapter.url_name)
         if fin_chap:
