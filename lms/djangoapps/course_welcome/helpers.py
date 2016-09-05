@@ -232,18 +232,21 @@ def prepare_sections_with_grade(request, course):
                 }
                 units.append(unit_context)
 
+        competency = None
+        if int(section_points.get('total')):
+            competency = int(section_points.get('earned')) == int(section_points.get('total'))
         section_context = {
             'display_name': chapter.display_name_with_default_escaped,
             'url_name': chapter.url_name,
             'hidden': False,
             'rank': 1,
-            'competency': int(section_points.get('earned')) == int(section_points.get('total')),
+            'competency': competency,
             'points': {
                 'total': int(section_points.get('total')),
                 'earned': int(section_points.get('earned')),
                 'css_class': section_points.get('css_class')
             },
-            'participation': chapter.url_name in discussions_participated,
+            'participation': discussions_participated.get(chapter.url_name),
             'units': units,
             'week': "WEEK {week}: ".format(week=section_index),
         }

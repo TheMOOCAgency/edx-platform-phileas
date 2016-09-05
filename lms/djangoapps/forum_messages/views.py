@@ -13,7 +13,7 @@ from xmodule.modulestore.django import modulestore
 
 
 def get_section_list(request,course_id,student_id):
-    section_id_list = []
+    section_id_dict = {}
     commentable_id_list = []
     try:
         course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
@@ -46,9 +46,13 @@ def get_section_list(request,course_id,student_id):
             for unit in section.get_children():
                 for vertical in unit.get_children():
                     if vertical.category == 'discussion':
+                        participated = False
                         for thread in threads:
-                            if thread['commentable_id'] == vertical.discussion_id and thread['username'] == student.username:
-                                section_id_list.append(section.url_name)
+                            if thread['commentable_id'] == vertical.discussion_id:
+                                participated = thread['username'] == student.username
+                                if participated:
+                                    break
+                        section_id_dict.update({chapter.url_name: participated})
                 break
 
-    return section_id_list
+    return section_id_dict
