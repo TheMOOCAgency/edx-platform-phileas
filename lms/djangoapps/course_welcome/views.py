@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.conf import settings
 
 from xmodule.modulestore.django import modulestore
 from courseware.courses import get_course_by_id
@@ -20,8 +21,9 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from util.views import ensure_valid_course_key
 from edxmako.shortcuts import render_to_response
 
-from course_welcome.helpers import render_accordion, get_final_score
+from course_welcome.purple import render_accordion, get_final_score
 from course_progress.helpers import get_overall_progress
+from course_welcome.dots import prepare_sections_with_grade
 
 log = logging.getLogger("edx.courseware")
 
@@ -54,19 +56,32 @@ def course_welcome(request, course_id):
             # control.
             raise Http404("Course not found.")
 
-    # Get the final score for the student
-    score = get_final_score(request, course)
-    # Set badge if the score is greater or equal to 60%
-    badge = score >= 60
 
     context = {
         'request': request,
         'course_id': course_key.to_deprecated_string(),
-        'course': course,
-        'score': score,
-        'badge': badge,
-        'overall_progress': get_overall_progress(request.user.id, course_key),
-        'accordion': render_accordion(request, course),
+        'course': course
     }
+    if settings.WELCOME_PAGE_NAME == 'purple':
+        # Get the final score for the student
+        score = get_final_score(request, course)
+        # Set badge if the score is greater or equal to 60%
+        badge = score >= 60
+        # update context
+        context.update({
+            'score': score,
+            'badge': badge,
+            'overall_progress': get_overall_progress(request.user.id, course_key),
+            'accordion': render_accordion(request, course)
+        })
+        # set template to purple
+        template_name = 'course_welcome/purple.html'
+    else:
+        # update context
+        context.update({
+            'sections': prepare_sections_with_grade(request, course)
+        })
+        # set template to dots
+        template_name = 'course_welcome/dots.html'
 
-    return render_to_response('course_welcome/welcome.html', context)
+    return render_to_response(template_name, context)

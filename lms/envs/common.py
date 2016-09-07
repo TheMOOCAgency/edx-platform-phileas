@@ -2942,6 +2942,7 @@ AFFILIATE_COOKIE_NAME = 'affiliate_id'
 REDIRECT_CACHE_TIMEOUT = None  # The length of time we cache Redirect model data
 REDIRECT_CACHE_KEY_PREFIX = 'redirects'
 
+#===================== Settings for TMA =====================
 # reCaptcha
 RECAPTCHA_VERIFY_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify'
 RECAPTCHA_SITE_KEY = None
@@ -2949,3 +2950,6 @@ RECAPTCHA_SECRETE_KEY = None
 
 # Email Address where the enorllment request will go.
 ENROLLMENT_REQUEST_EMAIL = "enrollment@request.com"
+
+# Course welcome page name
+WELCOME_PAGE_NAME = 'purple'
