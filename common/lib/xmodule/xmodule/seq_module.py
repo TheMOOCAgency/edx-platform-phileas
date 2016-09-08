@@ -20,7 +20,6 @@ from .mako_module import MakoModuleDescriptor
 from .progress import Progress
 from .x_module import XModule, STUDENT_VIEW
 from .xml_module import XmlDescriptor
-from seq_nav.views import is_unit_visited
 
 log = logging.getLogger(__name__)
 
@@ -237,11 +236,6 @@ class SequenceModule(SequenceFields, ProctoringFields, XModule):
                 'id': child.scope_ids.usage_id.to_deprecated_string(),
                 'bookmarked': is_bookmarked,
                 'path': " > ".join(display_names + [child.display_name_with_default]),
-                'seen': is_unit_visited(
-                    self.runtime.service(self, "user").get_current_user(
-                    ).opt_attrs['edx-platform.user_id'],
-                    child.scope_ids.usage_id.to_deprecated_string()
-                ),
             }
 
             contents.append(childinfo)
