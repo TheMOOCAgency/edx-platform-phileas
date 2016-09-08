@@ -2086,6 +2086,9 @@ INSTALLED_APPS = (
 
     #enrollment workflow added by chintan joshi
     'enrollment_workflow',
+
+    # seq nav persistance
+    'seq_nav',
 )
 
 # Migrations which are not in the standard module "migrations"

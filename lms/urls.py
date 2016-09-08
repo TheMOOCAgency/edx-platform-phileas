@@ -1193,3 +1193,11 @@ if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS'):
             name="news"
         ),
     )
+
+urlpatterns += (
+    url(
+        r'^save_unit_visit/$',
+        'seq_nav.views.save_unit_visit',
+        name="save_unit_visit"
+    ),
+)
