@@ -2,6 +2,7 @@
 Asynchronous tasks for the course generator app.
 """
 import json
+from path import path
 
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
@@ -21,7 +22,7 @@ def course_json_consumer():
     Reads the JSON, processed and creates courses if not already created.
     """
     # Read the JSON
-    file_path = settings.COURSE_JSON_LOCATION / settings.COURSE_JSON_FILE_NAME
+    file_path = path(settings.COURSE_JSON_LOCATION) / path(settings.COURSE_JSON_FILE_NAME)
     json_data = None
     with open(file_path) as data_file:
         json_data = json.load(data_file)
