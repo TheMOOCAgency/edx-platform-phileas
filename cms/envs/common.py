@@ -913,6 +913,9 @@ INSTALLED_APPS = (
 
     # Enables default site and redirects
     'django_sites_extensions',
+
+    # TMA course generator
+    'course_generator',
 )
 
 
