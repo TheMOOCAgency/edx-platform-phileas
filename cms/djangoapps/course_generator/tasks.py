@@ -28,6 +28,6 @@ def course_json_consumer():
 
     # If JSON data available then get course details
     if json_data:
-        formations = json_data.get('data', {}).get('formations', [])
-        for formation in formations:
-            create_course(formation)
+        subjects = json_data.get('data', {}).get('subject', [])
+        for subject in subjects:
+            create_course(subject)

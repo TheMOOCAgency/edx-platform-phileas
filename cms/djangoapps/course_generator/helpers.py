@@ -25,34 +25,43 @@ from openedx.core.djangoapps.models.course_details import CourseDetails
 from course_generator.utils import store_jacket_image
 
 
-def create_course(formation):
+def create_course(subject):
     """
     Creates course using the provided information.
 
-    Argument: formation dictionary
+    Argument: subject dictionary
 
     Author: Naresh Makwana
     """
     try:
-        org = formation.get('publisher')
-        course = 'V' + formation.get('vodeclic_id')
-        display_name = formation.get('title')
+        org = "Vodeclic"
+        course = subject.get('id')
+        display_name = subject.get('title')
         # force the start date for reruns and allow us to override start via the client
-        publish_date = formation.get('publishDate')
+        publish_date = "2000-01-01"
+        end_date = "2050-12-31"
+        end_datetime = CourseFields.end.default
         publish_datetime = CourseFields.start.default
         try:
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
             publish_datetime = datetime.strptime(publish_date, '%Y-%m-%d')
         except:
             pass
         start = publish_datetime
-        run = formation.get('publishYear') + '_T2'
+        end = end_datetime
+        run = '2000_T2'
 
         # allow/disable unicode characters in course_id according to settings
         if not settings.FEATURES.get('ALLOW_UNICODE_COURSE_ID'):
             if _has_non_ascii_characters(org) or _has_non_ascii_characters(course) or _has_non_ascii_characters(run):
                 return
 
-        fields = {'start': start}
+        fields = {
+                    'start': start,
+                    'end':end,
+                    'enrollment_start':start,
+                    'enrollment_end': end,
+                }
         if display_name is not None:
             fields['display_name'] = display_name
 
@@ -64,14 +73,14 @@ def create_course(formation):
         definition_data = {'wiki_slug': wiki_slug}
         fields.update(definition_data)
 
-        _create_new_course(formation, org, course, run, fields)
+        _create_new_course(subject, org, course, run, fields)
 
     except DuplicateCourseError:
         return
     except InvalidKeyError:
         return
 
-def _create_new_course(formation, org, number, run, fields):
+def _create_new_course(subject, org, number, run, fields):
     """
     Create a new course.
     Raises DuplicateCourseError if the course already exists
@@ -100,15 +109,19 @@ def _create_new_course(formation, org, number, run, fields):
 
     # Set description and images for the course
     course_image_name, course_image_asset_path = store_jacket_image(
-        new_course.id, formation.get('image_jacket_url')
+        new_course.id, settings.VODECLIC_COURSE_IMAGE_LOCATION,
+        subject.get("id") + ".png"
     )
     additional_info = {
-        'language': formation.get('language', 'fr'),
-        'short_description': formation.get('description', ''),
+        'language': subject.get('language', 'fr'),
+        'short_description': subject.get('description', ''),
         'intro_video': None,
         'course_image_name': course_image_name,
         'course_image_asset_path': course_image_asset_path,
-        'start_date': new_course.start
+        'start_date': new_course.start,
+        'end_date': new_course.end,
+        'enrollment_start': new_course.start,
+        'enrollment_end': new_course.end
     }
 
     CourseDetails.update_from_json(new_course.id, additional_info, user)

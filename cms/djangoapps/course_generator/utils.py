@@ -11,22 +11,23 @@ from xmodule.contentstore.django import contentstore
 from cache_toolbox.core import del_cached_content
 
 
-def store_jacket_image(course_key, img_url):
+def store_jacket_image(course_key, img_path, filename):
     # set initial values
     content_name = asset_url = None
-
     # if image url is available then proceed
-    if img_url:
-        filename = img_url.split('/')[-1]
+    if img_path:
         content_loc = StaticContent.compute_location(course_key, filename)
         mime_type = mimetypes.types_map['.'+filename.split('.')[-1]]
         sc_partial = partial(StaticContent, content_loc, filename, mime_type)
 
         content = None
-        try:
-            content = sc_partial(urllib.urlopen(img_url).read())
-        except:
-            pass
+        with open(img_path+filename) as file_obj:
+            file_content = file_obj.read()
+        if file_content:
+            try:
+                content = sc_partial(urllib.urlopen(img_path+filename).read())
+            except:
+                pass
 
         if content:
             tempfile_path = None

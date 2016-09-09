@@ -1200,4 +1200,5 @@ AFFILIATE_COOKIE_NAME = 'affiliate_id'
 
 # Daily JSON dumps for creating courses
 COURSE_JSON_LOCATION = DATA_DIR / 'course_json'
-COURSE_JSON_FILE_NAME = 'courses.json'
+COURSE_JSON_FILE_NAME = 'vodeclic_get.json'
+VODECLIC_COURSE_IMAGE_LOCATION = "/edx/var/edxapp/staticfiles/vodeclic/pictures/"
