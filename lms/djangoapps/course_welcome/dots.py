@@ -1,6 +1,7 @@
 """
 Course info helpers
 """
+from collections import OrderedDict
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -79,6 +80,21 @@ def prepare_sections_with_grade(request, course):
         if course_module is None:
             return []
 
+    # Get the field data cache
+    staff_user = User.objects.filter(is_staff=1)[0]
+    staff_field_data_cache = FieldDataCache.cache_for_descriptor_descendents(
+        course.id, staff_user, course, depth=2,
+    )
+
+    # Get the course module
+    with modulestore().bulk_operations(course.id):
+        staff_course_module = get_module_for_descriptor(
+            staff_user, request, course, staff_field_data_cache, course.id, course=course
+        )
+
+    # staff accessible chapters
+    staff_chapters = staff_course_module.get_display_items()
+
     # find the passing grade for the course
     nonzero_cutoffs = [cutoff for cutoff in course.grade_cutoffs.values() if cutoff > 0]
     success_cutoff = min(nonzero_cutoffs) if nonzero_cutoffs else 0
@@ -128,22 +144,22 @@ def prepare_sections_with_grade(request, course):
     if not user_must_complete_entrance_exam(request, student, course):
         required_content = [content for content in required_content if not content == course.entrance_exam_id]
 
-    section_index = 0
     sections = list()
-    for chapter in course_module.get_display_items():
-        # increment the section count
-        section_index += 1
+    student_chapters = course_module.get_display_items()
+    urlname_chapters = {}
+    for student_chap in student_chapters:
+        urlname_chapters.update({student_chap.url_name:student_chap})
+    final_chapters = OrderedDict()
+    for chapter_index, chapter in enumerate(staff_chapters):
+        fin_chap = urlname_chapters.get(chapter.url_name)
+        if fin_chap:
+            final_chapters.update({str(chapter_index+1):{'hidden': False, 'chapter':fin_chap}})
+        else:
+            final_chapters.update({str(chapter_index+1):{'hidden':True}})
 
-        # Only consider required content, if there is required content
-        # chapter.hide_from_toc is read-only (bool)
-        display_id = slugify(chapter.display_name_with_default_escaped)
-        local_hide_from_toc = False
-        if required_content:
-            if unicode(chapter.location) not in required_content:
-                local_hide_from_toc = True
-
+    for section_index, chapter_info in final_chapters.items():
         # Mark as hidden and Skip the current chapter if a hide flag is tripped
-        if chapter.hide_from_toc or local_hide_from_toc:
+        if chapter_info['hidden']:
             sections.append({
                 'hidden': True,
                 'week': "WEEK {week}: ".format(week=section_index),
@@ -155,6 +171,7 @@ def prepare_sections_with_grade(request, course):
             })
             continue
 
+        chapter = chapter_info['chapter']
         # get the points
         section_points = section_grades.get(chapter.url_name, {})
 
@@ -191,11 +208,12 @@ def prepare_sections_with_grade(request, course):
                                 unit_max_score += capa_module.max_score()
                                 unit_score += capa_module.get_score().get('score')
 
-                    css_class = 'blue'
-                    if attempted_excercises == total_excercises:
-                        css_class = 'green'
-                        if unit_max_score and unit_score / unit_max_score < success_cutoff:
-                            css_class = 'red'
+                    if total_excercises:
+                        css_class = 'blue'
+                        if attempted_excercises == total_excercises:
+                            css_class = 'green'
+                            if unit_max_score and unit_score / unit_max_score < success_cutoff:
+                                css_class = 'red'
 
                 position = index + 1  # For jumping to the unit directly
                 unit_context = {
@@ -214,18 +232,21 @@ def prepare_sections_with_grade(request, course):
                 }
                 units.append(unit_context)
 
+        competency = None
+        if int(section_points.get('total')):
+            competency = int(section_points.get('earned')) == int(section_points.get('total'))
         section_context = {
             'display_name': chapter.display_name_with_default_escaped,
             'url_name': chapter.url_name,
             'hidden': False,
             'rank': 1,
-            'competency': int(section_points.get('earned')) == int(section_points.get('total')),
+            'competency': competency,
             'points': {
                 'total': int(section_points.get('total')),
                 'earned': int(section_points.get('earned')),
                 'css_class': section_points.get('css_class')
             },
-            'participation': chapter.url_name in discussions_participated,
+            'participation': discussions_participated.get(chapter.url_name),
             'units': units,
             'week': "WEEK {week}: ".format(week=section_index),
         }
