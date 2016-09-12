@@ -2089,6 +2089,9 @@ INSTALLED_APPS = (
 
     # seq nav persistance
     'seq_nav',
+
+    # Custom dashboard
+    'tma_dashboard',
 )
 
 # Migrations which are not in the standard module "migrations"

@@ -751,7 +751,12 @@ def dashboard(request):
             'ecommerce_payment_page': ecommerce_service.payment_page_url(),
         })
 
-    return render_to_response('dashboard.html', context)
+    # TMA custom dashboard if required
+    template_name = 'dashboard.html'
+    if settings.FEATURES.get('TMA_ENABLE_CUSTOM_DASHBOARD'):
+        template_name = 'tma_dashboard/dashboard.html'
+
+    return render_to_response(template_name, context)
 
 
 def _create_recent_enrollment_message(course_enrollments, course_modes):  # pylint: disable=invalid-name
