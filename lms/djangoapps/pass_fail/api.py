@@ -53,19 +53,17 @@ def get_api(request,course_id,section_id):
     success_cutoff = min(nonzero_cutoffs) * 100 if nonzero_cutoffs else 0
 
     chapters = []
-    section_index = 0
     passed = False
     for chapter in courseware_summary:
         if not chapter['display_name'] == "hidden":
             for section in chapter['sections']:
                 if section['url_name'] == section_id:
-                    section_index += 1
                     earned = section['section_total'].earned
                     total = section['section_total'].possible
                     percentage = earned * 100 / total if earned > 0 and total > 0 else 0
                     passed = success_cutoff and percentage >= success_cutoff
 
-            break
+                    break
 
     return Response(
         data={
