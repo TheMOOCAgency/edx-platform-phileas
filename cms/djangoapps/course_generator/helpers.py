@@ -11,6 +11,9 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import DuplicateCourseError
 
 from opaque_keys import InvalidKeyError
+from opaque_keys.edx.locations import SlashSeparatedCourseKey
+
+from courseware.courses import get_course_by_id
 
 from util.string_utils import _has_non_ascii_characters
 from util.organizations_helpers import (
@@ -57,11 +60,11 @@ def create_course(subject):
                 return
 
         fields = {
-                    'start': start,
-                    'end':end,
-                    'enrollment_start':start,
-                    'enrollment_end': end,
-                }
+            'start': start,
+            'end':end,
+            'enrollment_start':start,
+            'enrollment_end': end,
+        }
         if display_name is not None:
             fields['display_name'] = display_name
 
@@ -102,8 +105,12 @@ def _create_new_course(subject, org, number, run, fields):
         )
         user.set_password('coursecreator')
         user.save()
+    try:
+        new_course = create_new_course_in_store(store_for_new_course, user, org, number, run, fields)
 
-    new_course = create_new_course_in_store(store_for_new_course, user, org, number, run, fields)
+    except DuplicateCourseError:
+        existing_course_key = SlashSeparatedCourseKey.from_deprecated_string('course-v1:'+org+'+'+number+'+'+run)
+        new_course = get_course_by_id(existing_course_key)
 
     add_organization_course(org_data, new_course.id)
 
@@ -113,6 +120,7 @@ def _create_new_course(subject, org, number, run, fields):
         subject.get("id") + ".png"
     )
     additional_info = {
+        'display_name': subject.get('title'),
         'language': subject.get('language', 'fr'),
         'short_description': subject.get('description', ''),
         'intro_video': None,
