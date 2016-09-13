@@ -82,8 +82,8 @@ def get_tutor_tag(student,request,course,section_id):
                     total = section['section_total'].possible
                     percentage = earned * 100 / total if earned > 0 and total > 0 else 0
                     passed = success_cutoff and percentage >= success_cutoff
+                    break
 
-            break
     return {'username': student.username,'passed':passed}
 
 def get_section_id(request,course,discussion_id):
