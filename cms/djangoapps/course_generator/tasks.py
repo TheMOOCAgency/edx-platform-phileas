@@ -4,19 +4,13 @@ Asynchronous tasks for the course generator app.
 import json
 from path import path
 
-from celery.task.schedules import crontab
-from celery.decorators import periodic_task
-
+from celery.task import task
 from django.conf import settings
 
 from course_generator.helpers import create_course
 
 
-@periodic_task(
-    run_every=(crontab(minute=0, hour=0)),
-    name="course_generator.course_json_consumer",
-    ignore_result=True
-)
+@task(name='course_generator.course_json_consumer')
 def course_json_consumer():
     """
     Reads the JSON, processed and creates courses if not already created.

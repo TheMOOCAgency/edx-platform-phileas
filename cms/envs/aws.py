@@ -12,6 +12,7 @@ This is the default template for our main set of AWS servers.
 # pylint: disable=invalid-name
 
 import json
+from celery.schedules import crontab
 
 from .common import *
 
@@ -441,3 +442,9 @@ AFFILIATE_COOKIE_NAME = ENV_TOKENS.get('AFFILIATE_COOKIE_NAME', AFFILIATE_COOKIE
 COURSE_JSON_LOCATION = ENV_TOKENS.get('COURSE_JSON_LOCATION', COURSE_JSON_LOCATION)
 COURSE_JSON_FILE_NAME = ENV_TOKENS.get('COURSE_JSON_FILE_NAME', COURSE_JSON_FILE_NAME)
 VODECLIC_COURSE_IMAGE_LOCATION = ENV_TOKENS.get('VODECLIC_COURSE_IMAGE_LOCATION', VODECLIC_COURSE_IMAGE_LOCATION)
+CELERYBEAT_SCHEDULE = {
+    'daily-course-generator': {
+        'task': 'course_generator.course_json_consumer',
+        'schedule': crontab(minute=0, hour=0),
+    }
+}
