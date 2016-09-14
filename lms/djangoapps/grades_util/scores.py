@@ -21,10 +21,6 @@ def has_passed(request, course_id, section_url_name):
     course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
     course = get_course_with_access(student, 'load', course_key, depth=None)
 
-    # Find the passing grade for the course
-    nonzero_cutoffs = [cutoff for cutoff in course.grade_cutoffs.values() if cutoff > 0]
-    success_cutoff = min(nonzero_cutoffs) if nonzero_cutoffs else 0
-
     # Get the grade summary
     with outer_atomic():
         field_data_cache = grades.field_data_cache_for_grading(course, student)
@@ -54,4 +50,4 @@ def has_passed(request, course_id, section_url_name):
     percentage = assignments.get(section_assignment_type, 0.0)
 
     # Return passing status
-    return success_cutoff and percentage >= success_cutoff
+    return percentage * 100 == 100
