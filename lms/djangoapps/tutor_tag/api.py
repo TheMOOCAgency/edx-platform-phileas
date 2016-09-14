@@ -27,6 +27,7 @@ from openedx.core.lib.api.authentication import (
     OAuth2AuthenticationAllowInactiveUser,
 )
 
+from grades_util.scores import has_passed
 
 
 @view_auth_classes()
@@ -47,44 +48,13 @@ def get_api(request,course_id,discussion_id):
     data = []
     for username in user_list:
         student = User.objects.get(username=username)
-        tutor_Tag = get_tutor_tag(student,request,course,section_id)
-        data.append(tutor_Tag)
+        passed = has_passed(request, course_id, section_id)
+        data.append({'username': student.username, 'passed':passed})
 
     return Response(
         data={
-
         "data":data
     })
-
-
-def get_tutor_tag(student,request,course,section_id):
-    chapters = []
-    section_index = 0
-    passed = False
-    with outer_atomic():
-        field_data_cache = grades.field_data_cache_for_grading(course, student)
-        scores_client = ScoresClient.from_field_data_cache(field_data_cache)
-
-    courseware_summary = grades.progress_summary(
-        student, request, course, field_data_cache=field_data_cache, scores_client=scores_client
-    )
-
-    # find the passing grade for the course
-    nonzero_cutoffs = [cutoff for cutoff in course.grade_cutoffs.values() if cutoff > 0]
-    success_cutoff = min(nonzero_cutoffs) * 100 if nonzero_cutoffs else 0
-
-    for chapter in courseware_summary:
-        if not chapter['display_name'] == "hidden":
-            for section in chapter['sections']:
-                if section['url_name'] == section_id:
-                    section_index += 1
-                    earned = section['section_total'].earned
-                    total = section['section_total'].possible
-                    percentage = earned * 100 / total if earned > 0 and total > 0 else 0
-                    passed = success_cutoff and percentage >= success_cutoff
-                    break
-
-    return {'username': student.username,'passed':passed}
 
 def get_section_id(request,course,discussion_id):
     with modulestore().bulk_operations(course.id):
