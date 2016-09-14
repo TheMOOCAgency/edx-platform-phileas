@@ -14,7 +14,7 @@ from edxmako.shortcuts import render_to_response
 
 from news.models import NewsPage
 from news.pages import create_page, save_page, delete_page
-from news.utils import get_lms_link_for_page
+from news.utils import get_lms_link_for_news
 
 
 @login_required
@@ -39,7 +39,7 @@ def news_outline(request):
 
     return render_to_response('edit-news.html', {
         'pages_to_render': pages_to_render,
-        'lms_link': get_lms_link_for_page(),
+        'lms_link': get_lms_link_for_news(),
     })
 
 @expect_json

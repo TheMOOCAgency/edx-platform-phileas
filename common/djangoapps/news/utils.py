@@ -10,7 +10,7 @@ from django.conf import settings
 log = logging.getLogger(__name__)
 
 
-def get_lms_link_for_page(preview=False):
+def get_lms_link_for_news(preview=False):
     """
     Returns an LMS link to the news.
 
@@ -24,6 +24,6 @@ def get_lms_link_for_page(preview=False):
     else:
         lms_base = settings.LMS_BASE
 
-    return u"//{lms_base}/news/?id=".format(
+    return u"//{lms_base}/news/".format(
         lms_base=lms_base
     )

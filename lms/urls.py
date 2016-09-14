@@ -1190,7 +1190,7 @@ if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS'):
         url(
             r'^news/detail/(?P<page_id>[0-9]*)/$',
             'news.views.news_detail',
-            name="news"
+            name="news_in_detail"
         ),
         url(
             r'^news/$',
