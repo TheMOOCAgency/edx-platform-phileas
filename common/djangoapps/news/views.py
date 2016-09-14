@@ -6,6 +6,7 @@ from util.json_request import expect_json, JsonResponse
 from django.http import HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
@@ -22,14 +23,9 @@ from news.utils import get_lms_link_for_page
 def news_outline(request):
     """
     The restful handler for news outline.
+    Called to list at CMS.
 
-    DELETE
-        To delete any news page
-    PUT or POST
-        save the pages
-
-    Creating a page, deleting a page, or changing its contents is not supported through this method.
-    Instead use pages.page_handler
+    Author: Naresh Makwana
     """
     if not request.user.is_staff:
         raise PermissionDenied()
@@ -37,7 +33,9 @@ def news_outline(request):
     # assume html
     # get all pages from the news pages list
     # present in the LIFO order
-    pages_to_render = NewsPage.objects.filter(author=request.user)
+    pages_to_render = NewsPage.objects.filter(
+        author=request.user
+    ).order_by('-modified')
 
     return render_to_response('edit-news.html', {
         'pages_to_render': pages_to_render,
@@ -126,7 +124,7 @@ def get_news_content(request, page_id=None):
 @login_required
 @ensure_csrf_cookie
 @require_http_methods(("GET"))
-def news(request, page_id=None):
+def news_detail(request, page_id=None):
     """
     To make the content of the page visible
     To the student.
@@ -145,7 +143,44 @@ def news(request, page_id=None):
     except NewsPage.DoesNotExist:
         pass
 
-    return render_to_response('static_templates/platform_wide_news.html', {
+    return render_to_response('static_templates/platform_wide_news_detail.html', {
         'content': content,
         'title': title
+    })
+
+@login_required
+@ensure_csrf_cookie
+@require_http_methods(("GET"))
+def news(request):
+    """
+    List the news on LMS with pagination.
+    """
+    # Get all news
+    news_list = NewsPage.objects.all()
+
+    # Filter if its needs to be accessed by student
+    if not request.user.is_staff:
+        news_list = news_list.filter(visible=True)
+
+    # Apply Order by
+    news_list = news_list.order_by('-modified')
+
+    # Show 5 news per page
+    paginator = Paginator(news_list, 5)
+
+    # Get page number from request
+    page = request.GET.get('page')
+
+    try:
+        news = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        news = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        news = paginator.page(paginator.num_pages)
+
+    # Render news list
+    return render_to_response('static_templates/platform_wide_news.html', {
+        'news_list': news
     })
