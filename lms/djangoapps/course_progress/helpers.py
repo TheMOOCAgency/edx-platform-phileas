@@ -144,8 +144,19 @@ def traverse_tree(block, unordered_structure, ordered_blocks, parent=None):
 
     ordered_blocks[block] = cur_block
 
+    # Allow only tracking related elements
+    valid_components = [
+        'course', 'chapter', 'sequential', 'vertical',
+        'video', 'problem', 'html', 'openassessment', 'lti'
+    ]
     for child_node in cur_block.get('children', []):
-        traverse_tree(child_node, unordered_structure, ordered_blocks, parent=block)
+        if unordered_structure[child_node]['type'] in valid_components:
+            traverse_tree(child_node, unordered_structure, ordered_blocks, parent=block)
+        else:
+            original_children = ordered_blocks[cur_block['id']]['children']
+            original_children.remove(unordered_structure[child_node]['id'])
+            ordered_blocks[cur_block['id']]['children'] = original_children
+
 
 def set_initial_progress(request, course_key):
     course_usage_key = modulestore().make_course_usage_key(course_key)

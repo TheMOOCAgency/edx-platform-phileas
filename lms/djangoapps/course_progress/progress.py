@@ -1,7 +1,6 @@
 import json
 from collections import OrderedDict
 
-from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from openassessment.workflow.models import AssessmentWorkflow
 from xmodule.modulestore.django import modulestore
 from course_api.blocks.api import get_blocks

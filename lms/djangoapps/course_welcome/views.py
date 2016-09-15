@@ -62,7 +62,7 @@ def course_welcome(request, course_id):
         'course_id': course_key.to_deprecated_string(),
         'course': course
     }
-    if settings.WELCOME_PAGE_NAME == 'purple':
+    if settings.TMA_WELCOME_PAGE_NAME == 'purple':
         # Get the final score for the student
         score = get_final_score(request, course)
         # Set badge if the score is greater or equal to 60%

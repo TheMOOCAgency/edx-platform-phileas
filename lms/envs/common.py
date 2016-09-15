@@ -2958,4 +2958,4 @@ RECAPTCHA_SECRETE_KEY = None
 ENROLLMENT_REQUEST_EMAIL = "enrollment@request.com"
 
 # Course welcome page name
-WELCOME_PAGE_NAME = 'purple'
+TMA_WELCOME_PAGE_NAME = 'purple'

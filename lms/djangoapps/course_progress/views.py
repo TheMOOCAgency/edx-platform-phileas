@@ -79,7 +79,8 @@ def get_completion_status(request):
         if progress[chapter_id]['progress'] == 100:
             chapters_completed.append(progress[chapter_id]['display_name'])
         else:
-            for section_id in progress[chapter_id]['children']:
+            chapter_progress = progress.get(chapter_id, {})
+            for section_id in chapter_progress.get('children', []):
                 if progress[section_id]['progress'] == 100:
                     section_url_name = section_id.split('@')[-1]
                     sections_completed.append(section_url_name)
