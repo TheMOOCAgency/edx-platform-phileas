@@ -9,7 +9,8 @@ def create_page(author):
     Create page with default values and
     set the author.
     """
-    page = NewsPage.objects.create(title='Empty',author=author)
+    order_num = NewsPage.objects.all().count()
+    page = NewsPage.objects.create(title='Empty', author=author, order_num=order_num)
     return page
 
 def save_page(page, values):

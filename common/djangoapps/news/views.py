@@ -35,7 +35,10 @@ def news_outline(request):
     # present in the LIFO order
     pages_to_render = NewsPage.objects.filter(
         author=request.user
-    ).order_by('-modified')
+    )
+
+    # order the pages
+    pages_to_render = sorted(pages_to_render, key=lambda x: x.order_num)
 
     return render_to_response('edit-news.html', {
         'pages_to_render': pages_to_render,
@@ -162,8 +165,8 @@ def news(request):
     if not request.user.is_staff:
         news_list = news_list.filter(visible=True)
 
-    # Apply Order by
-    news_list = news_list.order_by('-modified')
+    # order the pages
+    news_list = sorted(news_list, key=lambda x: x.order_num)
 
     # Show 5 news per page
     paginator = Paginator(news_list, 5)
@@ -184,3 +187,29 @@ def news(request):
     return render_to_response('static_templates/platform_wide_news.html', {
         'news_list': news
     })
+
+@expect_json
+@login_required
+@ensure_csrf_cookie
+@require_http_methods(("POST"))
+def reorder_news_handler(request):
+    """
+    To arrange the news.
+    Author: Naresh Makwana
+    """
+    # Get the pages in requested order
+    requested_page_id_locators = request.json['pages']
+
+    for order_num, page_id_locator in enumerate(requested_page_id_locators):
+        try:
+            page = NewsPage.objects.get(pk=page_id_locator.get('page_id', -1))
+        except NewsPage.DoesNotExist:
+            return JsonResponse(
+                {"error": "News Page with id_locator '{0}' does not exist.".format(page_id_locator)}, status=400
+            )
+        # Change the order of the page
+        page.order_num = order_num
+        page.save()
+
+    # Return empty response
+    return JsonResponse()

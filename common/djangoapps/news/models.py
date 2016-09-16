@@ -14,6 +14,7 @@ class NewsPage(TimeStampedModel):
     content = models.TextField(blank=True)
     visible = models.BooleanField(default=True)
     author = models.ForeignKey(User, db_index=True)
+    order_num = models.IntegerField()
 
     def access_check(self, user):
         return self.author == user

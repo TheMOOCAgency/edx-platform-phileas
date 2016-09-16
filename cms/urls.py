@@ -220,4 +220,5 @@ if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS'):
         url(r'^news_handler/$', 'news.views.news_handler', name="news_handler"),
         url(r'^news_handler/(?P<page_id>[0-9]*)/$', 'news.views.news_handler', name="news_handler"),
         url(r'^get_news_content/(?P<page_id>[0-9]*)/$', 'news.views.get_news_content', name="get_news_content"),
+        url(r'^reorder_news/$', 'news.views.reorder_news_handler', name="reorder_news_handler"),
     )

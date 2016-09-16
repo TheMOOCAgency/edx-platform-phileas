@@ -17,6 +17,7 @@ from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
 from student.views import LogoutView
 from course_progress.api import APICompletionProgress
+from news.api import APINewsPages
 from forum_messages.api import APIForumMessages
 
 # Uncomment the next two lines to enable the admin:
@@ -1207,6 +1208,21 @@ if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS'):
             r'^news/$',
             'news.views.news',
             name="news"
+        ),
+    )
+
+# Platform wide news API
+if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS_API'):
+    urlpatterns += (
+        url(
+            r'^api/news/?$',
+            APINewsPages.as_view(),
+            name='platform_wide_news',
+        ),
+        url(
+            r'^api/news/(?P<news_id>[0-9]*)/$',
+            APINewsPages.as_view(),
+            name='platform_wide_news_by_id',
         ),
     )
 
