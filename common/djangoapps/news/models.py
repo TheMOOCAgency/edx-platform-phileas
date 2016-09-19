@@ -10,7 +10,8 @@ class NewsPage(TimeStampedModel):
     class Meta(object):
         app_label = "news"
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, default="Empty")
+    jacket = models.FileField(upload_to='jacket', null=True)
     content = models.TextField(blank=True)
     visible = models.BooleanField(default=True)
     author = models.ForeignKey(User, db_index=True)

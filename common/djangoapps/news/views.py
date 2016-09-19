@@ -45,10 +45,9 @@ def news_outline(request):
         'lms_link': get_lms_link_for_news(),
     })
 
-@expect_json
 @login_required
 @ensure_csrf_cookie
-@require_http_methods(("DELETE", "PUT", "POST", "PATCH"))
+@require_http_methods(("DELETE", "POST"))
 def news_handler(request, page_id=None):
     """
     The restful handler news.
@@ -77,8 +76,11 @@ def news_handler(request, page_id=None):
 
         if request.method == 'DELETE':
             delete_page(page)
-        elif request.method in ('PUT', 'POST'):
-            save_page(page, request.json)
+        elif request.method == 'POST':
+            metadata = request.POST.dict()
+            if 'jacket' in request.FILES:
+                metadata.update({'jacket': request.FILES['jacket']})
+            save_page(page, metadata)
 
         return JsonResponse()
     else:  # no page ID
@@ -91,6 +93,46 @@ def news_handler(request, page_id=None):
             return JsonResponse({
                 'error': 'Only page create allowed without page ID.'
             })
+
+@expect_json
+@login_required
+@ensure_csrf_cookie
+@require_http_methods(("POST"))
+def news_visibility_handler(request, page_id=None):
+    """
+    The restful handler news visibility.
+
+    DELETE
+        To delete any news page
+    PUT or POST
+        save the pages
+    """
+    # Must have staff access
+    if not request.user.is_staff:
+        raise PermissionDenied()
+
+    # For updating any page, page ID is must
+    if page_id:
+        try:
+            page = NewsPage.objects.get(pk=page_id)
+        except NewsPage.DoesNotExist:
+            return JsonResponse({
+                'error': 'No such page exists.'
+            })
+
+        # Staff can access own pages
+        if not page.access_check(request.user):
+            raise PermissionDenied()
+
+        visible = request.json.get('visible', False)
+        page.visible = visible
+        page.save()
+
+        return JsonResponse()
+    else:  # no page ID
+        return JsonResponse({
+            'error': 'Page ID required.'
+        })
 
 @expect_json
 @login_required

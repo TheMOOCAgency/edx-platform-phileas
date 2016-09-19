@@ -97,7 +97,7 @@ class APINewsPages(APIView):
                     'news_id': news.id,
                     'title': news.title,
                     'summary': news.content,
-                    'jacket': '',
+                    'jacket': news.jacket.url if news.jacket and news.jacket.url != 'undefined' else '',
                     'published_on': news.created.strftime("%d %B %Y"),
                     'author': news.author.username
                 }
@@ -114,7 +114,7 @@ class APINewsPages(APIView):
                     'news': page.id,
                     'title': page.title,
                     'summary': page.content,
-                    'jacket': '',
+                    'jacket': page.jacket.url if page.jacket and page.jacket.url != 'undefined' else '',
                     'published_on': page.created.strftime("%d %B %Y"),
                     'author': page.author.username
                 })
