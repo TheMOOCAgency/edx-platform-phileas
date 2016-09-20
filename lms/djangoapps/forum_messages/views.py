@@ -50,9 +50,6 @@ def get_section_list(request,course_id,student_id):
                         for thread in threads:
                             if thread['commentable_id'] == vertical.discussion_id:
                                 participated = thread['username'] == student.username
-                                if participated:
-                                    break
                         section_id_dict.update({chapter.url_name: participated})
-                break
 
     return section_id_dict
