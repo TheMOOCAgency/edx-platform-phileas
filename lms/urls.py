@@ -1037,7 +1037,7 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
 if settings.FEATURES.get('TMA_ENABLE_COMPLETION_TRACKING'):
     urlpatterns += (
         url(
-            r'^track_html_component$',
+            r'^track_html_component/$',
             'course_progress.custom_track.track_html_component',
             name='track_html_component'
         ),
