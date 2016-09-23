@@ -1233,3 +1233,13 @@ urlpatterns += (
         name="save_unit_visit"
     ),
 )
+
+#added by chintan joshi for grade report generation
+urlpatterns += (
+    url(
+        r'^generate_grade_reports/$',
+        'grades_util.views.grade_report_generation',
+        name="generate_grade_reports"
+    ),
+)
+

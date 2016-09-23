@@ -2959,3 +2959,7 @@ ENROLLMENT_REQUEST_EMAIL = "enrollment@request.com"
 
 # Course welcome page name
 TMA_WELCOME_PAGE_NAME = 'purple'
+
+#added by chintan joshi for grades download
+TMA_MERGED_REPORTS_PATH = '/edx/app/edxapp/edx-platform/merged_folder/'
+TMA_MERGED_REPORTS_NAME = 'merged_report'

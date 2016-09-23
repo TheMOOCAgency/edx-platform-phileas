@@ -845,3 +845,7 @@ ENROLLMENT_REQUEST_EMAIL = ENV_TOKENS.get('ENROLLMENT_REQUEST_EMAIL', ENROLLMENT
 
 # Course welcome page name
 TMA_WELCOME_PAGE_NAME = ENV_TOKENS.get('TMA_WELCOME_PAGE_NAME', TMA_WELCOME_PAGE_NAME)
+
+#added by chintan joshi for grades download
+TMA_MERGED_REPORTS_PATH = '/edx/app/edxapp/edx-platform/merged_folder/'
+TMA_MERGED_REPORTS_NAME = 'merged_report'
