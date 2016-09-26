@@ -4,10 +4,10 @@ This module is kept for adding new custom tabs.
 Author: Naresh Makwana
 """
 from django.utils.translation import ugettext_noop
-from xmodule.tabs import CourseTab
+from courseware.tabs import EnrolledTab
 
 
-class CourseWelcomeTab(CourseTab):
+class CourseWelcomeTab(EnrolledTab):
     """
     The course welcome view.
     """
