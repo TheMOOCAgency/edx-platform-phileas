@@ -11,6 +11,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.conf import settings
+from django.shortcuts import redirect
 
 from xmodule.modulestore.django import modulestore
 from courseware.courses import get_course_by_id
@@ -20,6 +21,7 @@ from util.date_utils import strftime_localized
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from util.views import ensure_valid_course_key
 from edxmako.shortcuts import render_to_response
+from student.models import CourseEnrollment
 
 from course_welcome.purple import render_accordion, get_final_score
 from course_progress.helpers import get_overall_progress
@@ -42,6 +44,10 @@ def course_welcome(request, course_id):
     with modulestore().bulk_operations(course_key):
         course = get_course_by_id(course_key, depth=2)
         access_response = has_access(request.user, 'load', course, course_key)
+
+        is_enrolled = CourseEnrollment.is_enrolled(request.user, course_key)
+        if not is_enrolled:
+            return redirect(reverse('about_course', args=[unicode(course_key)]))
 
         if not access_response:
 

@@ -11,7 +11,6 @@ from openedx.core.lib.course_tabs import CourseTabPluginManager
 from student.models import CourseEnrollment
 from xmodule.tabs import CourseTab, CourseTabList, key_checker
 
-from course_welcome.tabs import CourseWelcomeTab
 
 class EnrolledTab(CourseTab):
     """
@@ -23,6 +22,17 @@ class EnrolledTab(CourseTab):
             return True
         return bool(CourseEnrollment.is_enrolled(user, course.id) or has_access(user, 'staff', course, course.id))
 
+class CourseWelcomeTab(EnrolledTab):
+    """
+    The course welcome view.
+    """
+    type = 'course_welcome'
+    title = ugettext_noop('Welcome')
+    priority = 1
+    view_name = 'welcome'
+    tab_id = 'welcome'
+    is_movable = False
+    is_default = False
 
 class CoursewareTab(EnrolledTab):
     """
@@ -312,7 +322,7 @@ def get_course_tab_list(request, course):
     course_tab_list += _get_dynamic_tabs(course, user)
 
     # Add course welcome tab if feature is enabled
-    if settings.FEATURES.get('TMA_ENABLE_COURSE_WELCOME_PAGE'):
+    if settings.FEATURES.get('TMA_ENABLE_COURSE_WELCOME_PAGE') and CourseWelcomeTab.is_enabled(course, user):
         course_tab_list.insert(0, CourseWelcomeTab({}) )
 
     return course_tab_list
