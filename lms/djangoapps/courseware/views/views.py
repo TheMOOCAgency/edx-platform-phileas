@@ -93,7 +93,6 @@ from lms.djangoapps.ccx.custom_exception import CCXLocatorValidationException
 from ..entrance_exams import user_must_complete_entrance_exam
 from ..module_render import get_module_for_descriptor, get_module, get_module_by_usage_id
 
-from course_rating.helpers import inject_course_ratings_into_context
 from enrollment_workflow.models import RequestEnroll
 
 log = logging.getLogger("edx.courseware")
@@ -667,7 +666,6 @@ def course_about(request, course_id):
             'enrollment_status': enrollment_status
         }
         inject_coursetalk_keys_into_context(context, course_key)
-        inject_course_ratings_into_context(context, request.user, course_key)
 
         return render_to_response('courseware/course_about.html', context)
 

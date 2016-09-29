@@ -1100,9 +1100,11 @@ if settings.FEATURES.get('TMA_ENABLE_COMPLETION_TRACKING_API'):
 if settings.FEATURES.get('TMA_ENABLE_COURSE_RATING'):
     urlpatterns += (
         url(
-            r'^rate_course/',
-            'course_rating.views.rate_course',
-            name='rate_course'
+            r'^course_ratings_handler/{}/$'.format(
+                settings.COURSE_ID_PATTERN
+            ),
+            'course_rating.views.course_ratings_handler',
+            name='course_ratings_handler'
         ),
     )
 
