@@ -72,7 +72,7 @@ class APINewsPages(APIView):
     authentication_classes = (
         OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser, JwtAuthentication
     )
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     def get(self, request, news_id=None):
         if news_id:
@@ -96,7 +96,8 @@ class APINewsPages(APIView):
                 data={
                     'news_id': news.id,
                     'title': news.title,
-                    'summary': news.content,
+                    'summary': news.summary,
+                    'content': news.content,
                     'jacket': news.jacket.url if news.jacket and news.jacket.url != 'undefined' else '',
                     'published_on': news.created.strftime("%d %B %Y"),
                     'author': news.author.username
@@ -113,7 +114,8 @@ class APINewsPages(APIView):
                 news_json.append({
                     'news': page.id,
                     'title': page.title,
-                    'summary': page.content,
+                    'summary': page.summary,
+                    'content': page.content,
                     'jacket': page.jacket.url if page.jacket and page.jacket.url != 'undefined' else '',
                     'published_on': page.created.strftime("%d %B %Y"),
                     'author': page.author.username

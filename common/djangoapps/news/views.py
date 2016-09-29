@@ -87,7 +87,8 @@ def news_handler(request, page_id=None):
         if request.method == 'POST':
             page = create_page(request.user)
             return JsonResponse({
-                'page_id': page.id
+                'page_id': page.id,
+                'page_summary': page.summary
             })
         else:
             return JsonResponse({
@@ -174,23 +175,15 @@ def news_detail(request, page_id=None):
     To make the content of the page visible
     To the student.
     """
-    content = """<p class="error">Either you don't
-    have the permission to acccess the content of the page OR
-    the requested page does not exists</p>
-    """
-    title = ''
-
     try:
         page = NewsPage.objects.get(pk=page_id)
-        if page.visible or request.user.is_staff:
-            content = page.content
-            title = page.title
+        if not (page.visible or request.user.is_staff):
+            page = None
     except NewsPage.DoesNotExist:
-        pass
+        page = None
 
     return render_to_response('static_templates/platform_wide_news_detail.html', {
-        'content': content,
-        'title': title
+        'news': page
     })
 
 @login_required

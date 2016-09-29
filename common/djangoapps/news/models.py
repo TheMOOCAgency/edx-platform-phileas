@@ -12,6 +12,7 @@ class NewsPage(TimeStampedModel):
 
     title = models.CharField(max_length=255, default="Empty")
     jacket = models.FileField(upload_to='jacket', null=True)
+    summary = models.TextField(blank=True)
     content = models.TextField(blank=True)
     visible = models.BooleanField(default=True)
     author = models.ForeignKey(User, db_index=True)
