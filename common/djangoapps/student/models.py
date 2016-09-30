@@ -284,6 +284,7 @@ class UserProfile(models.Model):
     bio = models.CharField(blank=True, null=True, max_length=3000, db_index=False)
     profile_image_uploaded_at = models.DateTimeField(null=True, blank=True)
     is_validator = models.BooleanField(default=0)
+    is_manager = models.BooleanField(default=0)
 
     @property
     def has_profile_image(self):

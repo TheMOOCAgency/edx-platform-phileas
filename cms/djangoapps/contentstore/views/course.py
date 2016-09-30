@@ -107,6 +107,7 @@ __all__ = ['course_info_handler', 'course_handler', 'course_listing',
            'course_info_update_handler', 'course_search_index_handler',
            'course_rerun_handler',
            'settings_handler',
+           'customize_settings_handler',
            'grading_handler',
            'advanced_settings_handler',
            'course_notifications_handler',
@@ -1224,6 +1225,73 @@ def advanced_settings_handler(request, course_key_string):
                 'context_course': course_module,
                 'advanced_dict': CourseMetadata.fetch(course_module),
                 'advanced_settings_url': reverse_course_url('advanced_settings_handler', course_key)
+            })
+        elif 'application/json' in request.META.get('HTTP_ACCEPT', ''):
+            if request.method == 'GET':
+                return JsonResponse(CourseMetadata.fetch(course_module))
+            else:
+                try:
+                    # validate data formats and update the course module.
+                    # Note: don't update mongo yet, but wait until after any tabs are changed
+                    is_valid, errors, updated_data = CourseMetadata.validate_and_update_from_json(
+                        course_module,
+                        request.json,
+                        user=request.user,
+                    )
+
+                    if is_valid:
+                        try:
+                            # update the course tabs if required by any setting changes
+                            _refresh_course_tabs(request, course_module)
+                        except InvalidTabsException as err:
+                            log.exception(err.message)
+                            response_message = [
+                                {
+                                    'message': _('An error occurred while trying to save your tabs'),
+                                    'model': {'display_name': _('Tabs Exception')}
+                                }
+                            ]
+                            return JsonResponseBadRequest(response_message)
+
+                        # now update mongo
+                        modulestore().update_item(course_module, request.user.id)
+
+                        return JsonResponse(updated_data)
+                    else:
+                        return JsonResponseBadRequest(errors)
+
+                # Handle all errors that validation doesn't catch
+                except (TypeError, ValueError, InvalidTabsException) as err:
+                    return HttpResponseBadRequest(
+                        django.utils.html.escape(err.message),
+                        content_type="text/plain"
+                    )
+
+
+@login_required
+@ensure_csrf_cookie
+@require_http_methods(("GET", "POST", "PUT"))
+@expect_json
+def customize_settings_handler(request, course_key_string):
+    """
+    Course settings configuration
+    GET
+        html: get the page
+        json: get the model
+    PUT, POST
+        json: update the Course's settings. The payload is a json rep of the
+            metadata dicts.
+    """
+    course_key = CourseKey.from_string(course_key_string)
+    with modulestore().bulk_operations(course_key):
+        course_module = get_course_and_check_access(course_key, request.user)
+        if 'text/html' in request.META.get('HTTP_ACCEPT', '') and request.method == 'GET':
+
+            return render_to_response('settings_customize.html', {
+                'context_course': course_module,
+                'is_new':course_module.is_new,
+                'invitation_only': course_module.invitation_only,
+                'manager_only': course_module.manager_only,
             })
         elif 'application/json' in request.META.get('HTTP_ACCEPT', ''):
             if request.method == 'GET':

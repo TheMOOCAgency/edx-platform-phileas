@@ -633,6 +633,13 @@ class CourseFields(object):
         scope=Scope.settings
     )
 
+    manager_only = Boolean(
+        display_name=_("Managers Only"),
+        help=_("Whether to restrict course to managers."),
+        default=False,
+        scope=Scope.settings
+    )
+
     course_survey_name = String(
         display_name=_("Pre-Course Survey Name"),
         help=_("Name of SurveyForm to display as a pre-course survey to the user."),

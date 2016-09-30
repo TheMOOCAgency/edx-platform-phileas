@@ -1245,3 +1245,10 @@ urlpatterns += (
     ),
 )
 
+urlpatterns += (
+    url(
+        r'^course_hide/$',
+        'course_hide.api.hide_courses',
+        name="course_hide"
+    ),
+)

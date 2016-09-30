@@ -109,6 +109,7 @@ urlpatterns += patterns(
     url(r'^settings/details/{}$'.format(settings.COURSE_KEY_PATTERN), 'settings_handler'),
     url(r'^settings/grading/{}(/)?(?P<grader_index>\d+)?$'.format(settings.COURSE_KEY_PATTERN), 'grading_handler'),
     url(r'^settings/advanced/{}$'.format(settings.COURSE_KEY_PATTERN), 'advanced_settings_handler'),
+    url(r'^settings/customize/{}/$'.format(settings.COURSE_KEY_PATTERN), 'customize_settings_handler'),
     url(r'^textbooks/{}$'.format(settings.COURSE_KEY_PATTERN), 'textbooks_list_handler'),
     url(r'^textbooks/{}/(?P<textbook_id>\d[^/]*)$'.format(settings.COURSE_KEY_PATTERN), 'textbooks_detail_handler'),
     url(r'^videos/{}$'.format(settings.COURSE_KEY_PATTERN), 'videos_handler'),
@@ -223,3 +224,7 @@ if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS'):
         url(r'^reorder_news/$', 'news.views.reorder_news_handler', name="reorder_news_handler"),
         url(r'^news_visibility/(?P<page_id>[0-9]*)/$', 'news.views.news_visibility_handler', name="news_visibility_handler"),
     )
+    
+urlpatterns += (
+    url(r'^update_course/{}$'.format(settings.COURSE_KEY_PATTERN),'customize_settings.views.customize_settings', name="course_update"),
+)
