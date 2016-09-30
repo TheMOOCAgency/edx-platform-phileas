@@ -38,7 +38,7 @@ class CourseRating(TimeStampedModel):
         avg_stars = cls.objects.filter(course_id=course_id).aggregate(Avg('stars')).values()[0]
         if not avg_stars:
             avg_stars = 0.0
-        return avg_stars
+        return round(avg_stars, 1)
 
     @classmethod
     def calc_total_reviews(cls, course_id):
