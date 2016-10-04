@@ -1,6 +1,8 @@
 """
 Course info helpers
 """
+from __future__ import division
+
 from collections import OrderedDict
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
