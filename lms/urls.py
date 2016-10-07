@@ -99,6 +99,9 @@ urlpatterns = (
     # Profile Images API endpoints
     url(r'^api/profile_images/', include('openedx.core.djangoapps.profile_images.urls')),
 
+    # Identity Proofs API endpoints
+    url(r'^api/identity_proofs/', include('openedx.core.djangoapps.identity_proofs.urls')),
+
     # Video Abstraction Layer used to allow video teams to manage video assets
     # independently of courseware. https://github.com/edx/edx-val
     url(r'^api/val/v0/', include('edxval.urls')),

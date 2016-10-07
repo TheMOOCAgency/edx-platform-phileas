@@ -10,7 +10,6 @@ from course_api.blocks.api import get_blocks
 
 from courseware.models import StudentModule
 from openassessment.workflow.models import AssessmentWorkflow
-from openedx.core.djangoapps.user_api.accounts.image_helpers import get_profile_image_urls_for_user
 
 from opaque_keys.edx.locations import BlockUsageLocator
 

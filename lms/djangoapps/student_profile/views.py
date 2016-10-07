@@ -83,6 +83,12 @@ def learner_profile_context(request, profile_username, user_is_staff):
             'profile_image_remove_url': reverse('profile_image_remove', kwargs={'username': profile_username}),
             'profile_image_max_bytes': settings.PROFILE_IMAGE_MAX_BYTES,
             'profile_image_min_bytes': settings.PROFILE_IMAGE_MIN_BYTES,
+
+            'identity_proof_upload_url': reverse('identity_proof_upload', kwargs={'username': profile_username}),
+            'identity_proof_remove_url': reverse('identity_proof_remove', kwargs={'username': profile_username}),
+            'identity_proof_max_bytes': settings.IDENTITY_PROOF_MAX_BYTES,
+            'identity_proof_min_bytes': settings.IDENTITY_PROOF_MIN_BYTES,
+
             'account_settings_page_url': reverse('account_settings'),
             'has_preferences_access': (logged_in_user.username == profile_username or user_is_staff),
             'own_profile': own_profile,

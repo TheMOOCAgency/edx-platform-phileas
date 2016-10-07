@@ -283,6 +283,8 @@ class UserProfile(models.Model):
     allow_certificate = models.BooleanField(default=1)
     bio = models.CharField(blank=True, null=True, max_length=3000, db_index=False)
     profile_image_uploaded_at = models.DateTimeField(null=True, blank=True)
+    identity_proof_uploaded_at = models.DateTimeField(null=True, blank=True)
+    identity_proof_file_extension = models.CharField(null=True, blank=True, max_length=4)
     is_validator = models.BooleanField(default=0)
     is_manager = models.BooleanField(default=0)
 
@@ -293,6 +295,14 @@ class UserProfile(models.Model):
         this user has uploaded a profile image.
         """
         return self.profile_image_uploaded_at is not None
+
+    @property
+    def has_identity_proof(self):
+        """
+        Convenience method that returns a boolean indicating whether or not
+        this user has uploaded a identity proof.
+        """
+        return self.identity_proof_uploaded_at is not None
 
     @property
     def age(self):
