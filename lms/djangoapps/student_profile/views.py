@@ -1,4 +1,5 @@
 """ Views for a student's profile information. """
+from random import randint
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,7 @@ from microsite_configuration import microsite
 from openedx.core.djangoapps.user_api.accounts.api import get_account_settings
 from openedx.core.djangoapps.user_api.errors import UserNotFound, UserNotAuthorized
 from openedx.core.djangoapps.user_api.preferences.api import get_user_preferences
+from openedx.core.djangoapps.identity_proofs.views import get_identity_proof_url
 from student.models import User
 
 
@@ -83,7 +85,7 @@ def learner_profile_context(request, profile_username, user_is_staff):
             'profile_image_remove_url': reverse('profile_image_remove', kwargs={'username': profile_username}),
             'profile_image_max_bytes': settings.PROFILE_IMAGE_MAX_BYTES,
             'profile_image_min_bytes': settings.PROFILE_IMAGE_MIN_BYTES,
-
+            'identity_proof_url': get_identity_proof_url(request),
             'identity_proof_upload_url': reverse('identity_proof_upload', kwargs={'username': profile_username}),
             'identity_proof_remove_url': reverse('identity_proof_remove', kwargs={'username': profile_username}),
             'identity_proof_max_bytes': settings.IDENTITY_PROOF_MAX_BYTES,

@@ -1,6 +1,8 @@
 """
 This module implements the upload and remove endpoints of the identity proof api.
 """
+from random import randint
+
 from contextlib import closing
 import datetime
 import itertools
@@ -8,6 +10,8 @@ import logging
 
 from django.utils.translation import ugettext as _
 from django.utils.timezone import utc
+from django.conf import settings
+from django.http import JsonResponse
 from rest_framework import permissions, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -138,3 +142,24 @@ class IdentityProofRemoveView(APIView):
 
     def post(self, request, username):
         return IdentityProofView().delete(request, username)
+
+
+def get_identity_proof_url(request):
+    if request.user.profile.has_identity_proof:
+        proof_base_url = settings.IDENTITY_PROOF_BACKEND['options']['base_url']
+
+        identity_proof_url = "{proof_base_url}/{email}.{exception}?v={version_random}".format(
+            proof_base_url=proof_base_url,
+            email=request.user.email,
+            exception = request.user.profile.identity_proof_file_extension,
+            version_random=randint(100000, 999999)
+        )
+    else:
+        identity_proof_url = "/static/images/default_id.png"
+
+    return identity_proof_url
+
+def get_identity_proof(request):
+    return JsonResponse({
+        'id_url': get_identity_proof_url(request)
+    })

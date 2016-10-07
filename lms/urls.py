@@ -1255,3 +1255,11 @@ urlpatterns += (
         name="course_hide"
     ),
 )
+
+urlpatterns += (
+    url(
+        r'^get_identity_proof/$',
+        'openedx.core.djangoapps.identity_proofs.views.get_identity_proof',
+        name="get_identity_proof"
+    ),
+)
