@@ -11,12 +11,15 @@ from django.contrib.auth.models import User
 from edxmako.shortcuts import render_to_string
 from xmodule.modulestore.django import modulestore
 from openedx.core.lib.gating import api as gating_api
+from submissions import api as sub_api
+
 
 from courseware.module_render import (
     get_module_for_descriptor,
     _add_timed_exam_info,
     get_module_by_usage_id
 )
+from student.models import anonymous_id_for_user
 from courseware.model_data import FieldDataCache, ScoresClient
 from courseware.entrance_exams import user_must_complete_entrance_exam
 from courseware import grades
@@ -146,6 +149,22 @@ def prepare_sections_with_grade(request, course):
     if not user_must_complete_entrance_exam(request, student, course):
         required_content = [content for content in required_content if not content == course.entrance_exam_id]
 
+    # define inner function
+    def create_module(descriptor):
+        '''creates an XModule instance given a descriptor'''
+        return get_module_for_descriptor(
+            student, request, descriptor, field_data_cache, course.id, course=course
+        )
+
+    with outer_atomic():
+        submissions_scores = sub_api.get_scores(
+            course.id.to_deprecated_string(),
+            anonymous_id_for_user(student, course.id)
+        )
+        max_scores_cache = grades.MaxScoresCache.create_for_course(course)
+        max_scores_cache.fetch_from_remote(field_data_cache.scorable_locations)
+
+
     sections = list()
     student_chapters = course_module.get_display_items()
     urlname_chapters = {}
@@ -202,13 +221,16 @@ def prepare_sections_with_grade(request, course):
                                 attempted_excercises += is_attempted_internal(
                                     str(component.location), progress
                                 )
-                                with modulestore().bulk_operations(course.id):
-                                    capa_module, tracking_context = get_module_by_usage_id(
-                                        request, course.id.to_deprecated_string(),
-                                        str(component.location), course=course
-                                    )
-                                unit_max_score += capa_module.max_score()
-                                unit_score += capa_module.get_score().get('score')
+                                (correct, total) = grades.get_score(
+                                    student,
+                                    component,
+                                    create_module,
+                                    scores_client,
+                                    submissions_scores,
+                                    max_scores_cache,
+                                )
+                                unit_max_score += total
+                                unit_score += correct
 
                     if total_excercises:
                         css_class = 'blue'
