@@ -11,6 +11,11 @@ from django.utils.translation import ugettext as _
 import piexif
 from PIL import Image
 
+from openedx.core.djangoapps.profile_images.images import (
+    _set_color_mode_to_rgb, _crop_image_to_square,
+    _scale_image, _get_corrected_exif, _create_image_file
+)
+
 from .helpers import get_identity_proof_storage
 from .exceptions import FileValidationError
 
@@ -42,17 +47,21 @@ FILE_TYPES = {
 
 
 def create_identity_proof(source_file, identity_proof_name, filetype):
+    size = 120
     storage = get_identity_proof_storage()
 
     if not filetype == 'pdf':
         original = Image.open(source_file)
         image = _set_color_mode_to_rgb(original)
+        image = _crop_image_to_square(image)
 
-        with closing(_create_image_file(image)) as file:
-            storage.save(identity_proof_name, file)
+        scaled = _scale_image(image, size)
+        exif = _get_corrected_exif(scaled, original)
+        with closing(_create_image_file(scaled, exif)) as scaled_image_file:
+            storage.save(identity_proof_name, scaled_image_file)
     else:
-        with closing(_create_pdf_file(source_file)) as file:
-            storage.save(identity_proof_name, file)
+        with closing(_create_pdf_file(source_file)) as pdf_file:
+            storage.save(identity_proof_name, pdf_file)
 
 
 def remove_identity_proof(identity_proof_name):
@@ -119,21 +128,6 @@ def validate_uploaded_file(uploaded_file):
         extension = filetype
 
     return extension
-
-
-def _set_color_mode_to_rgb(image):
-    """
-    Given a PIL.Image object, return a copy with the color mode set to RGB.
-    """
-    return image.convert('RGB')
-
-
-def _create_image_file(image):
-    string_io = StringIO()
-
-    image.save(string_io, format='JPEG')
-    image_file = ContentFile(string_io.getvalue())
-    return image_file
 
 
 def _create_pdf_file(pdf):
