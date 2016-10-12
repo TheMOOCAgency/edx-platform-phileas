@@ -13,7 +13,7 @@ from PIL import Image
 
 from openedx.core.djangoapps.profile_images.images import (
     _set_color_mode_to_rgb, _crop_image_to_square,
-    _scale_image, _get_corrected_exif, _create_image_file
+    _get_corrected_exif, _create_image_file
 )
 
 from .helpers import get_identity_proof_storage
@@ -47,7 +47,8 @@ FILE_TYPES = {
 
 
 def create_identity_proof(source_file, identity_proof_name, filetype):
-    size = 120
+    side_length = 278
+    side_breadth = 250
     storage = get_identity_proof_storage()
 
     if not filetype == 'pdf':
@@ -55,7 +56,7 @@ def create_identity_proof(source_file, identity_proof_name, filetype):
         image = _set_color_mode_to_rgb(original)
         image = _crop_image_to_square(image)
 
-        scaled = _scale_image(image, size)
+        scaled = image.resize((side_breadth, side_length), Image.ANTIALIAS)
         exif = _get_corrected_exif(scaled, original)
         with closing(_create_image_file(scaled, exif)) as scaled_image_file:
             storage.save(identity_proof_name, scaled_image_file)
