@@ -34,6 +34,7 @@
             'js/student_account/views/account_settings_factory',
             'js/student_account/views/finish_auth_factory',
             'js/student_profile/views/learner_profile_factory',
+            'js/student_profile/identity',
             'js/views/message_banner',
             'lms/js/preview/preview_factory',
             'support/js/certificates_factory',
