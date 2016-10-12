@@ -1699,6 +1699,7 @@ REQUIRE_JS_PATH_OVERRIDES = {
     'js/courseware/toggle_element_visibility': 'js/courseware/toggle_element_visibility.js',
     'js/student_account/logistration_factory': 'js/student_account/logistration_factory.js',
     'js/student_profile/views/learner_profile_factory': 'js/student_profile/views/learner_profile_factory.js',
+    'js/student_profile/identity': 'js/student_profile/identity.js',
     'js/courseware/courseware_factory': 'js/courseware/courseware_factory.js',
     'js/groups/views/cohorts_dashboard_factory': 'js/groups/views/cohorts_dashboard_factory.js',
     'afontgarde': 'edx-pattern-library/js/afontgarde.js',
