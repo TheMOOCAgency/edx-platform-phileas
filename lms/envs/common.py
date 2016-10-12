@@ -2972,12 +2972,5 @@ IDENTITY_PROOF_BACKEND = {
         'base_url': os.path.join(MEDIA_URL, 'identity-proofs/'),
     },
 }
-IDENTITY_PROOF_DEFAULT_FILENAME = 'proofs/identity/default'
-IDENTITY_PROOF_DEFAULT_FILE_EXTENSION = 'png'
-# This secret key is used in generating unguessable URLs to users'
-# identity proofs.  Once it has been set, changing it will make the
-# platform unaware of current image URLs, resulting in reverting all
-# users' identity proofs to the default placeholder image.
-IDENTITY_PROOF_SECRET_KEY = 'placeholder secret key'
 IDENTITY_PROOF_MAX_BYTES = 1024 * 1024 * 5
 IDENTITY_PROOF_MIN_BYTES = 100
