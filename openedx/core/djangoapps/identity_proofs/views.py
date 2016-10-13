@@ -155,7 +155,7 @@ def get_identity_proof_url(request):
             version_random=randint(100000, 999999)
         )
     else:
-        identity_proof_url = "/static/images/default_id.png"
+        identity_proof_url = "/static/themes/moocagency/images/default_id.png"
 
     return identity_proof_url
 
