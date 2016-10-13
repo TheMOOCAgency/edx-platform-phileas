@@ -7,6 +7,7 @@ import markupsafe
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from util.models import CompressedTextField
 
 from openedx.core.djangoapps.course_groups.models import CourseUserGroup
 from openedx.core.djangoapps.course_groups.cohorts import get_cohort_by_name
@@ -45,10 +46,11 @@ class Email(models.Model):
 SEND_TO_MYSELF = 'myself'
 SEND_TO_STAFF = 'staff'
 SEND_TO_LEARNERS = 'learners'
+SEND_TO_SELECTED = 'selected'
 SEND_TO_COHORT = 'cohort'
 EMAIL_TARGET_CHOICES = zip(
-    [SEND_TO_MYSELF, SEND_TO_STAFF, SEND_TO_LEARNERS, SEND_TO_COHORT],
-    ['Myself', 'Staff and instructors', 'All students', 'Specific cohort']
+    [SEND_TO_MYSELF, SEND_TO_STAFF, SEND_TO_LEARNERS, SEND_TO_SELECTED, SEND_TO_COHORT],
+    ['Myself', 'Staff and instructors', 'All students', 'Selected', 'Specific cohort']
 )
 EMAIL_TARGETS = {target[0] for target in EMAIL_TARGET_CHOICES}
 
@@ -91,7 +93,7 @@ class Target(models.Model):
         else:
             return self.get_target_type_display()
 
-    def get_users(self, course_id, user_id=None):
+    def get_users(self, course_id, selected, user_id=None):
         """
         Gets the users for a given target.
 
@@ -114,6 +116,12 @@ class Target(models.Model):
             return use_read_replica_if_available(staff_instructor_qset)
         elif self.target_type == SEND_TO_LEARNERS:
             return use_read_replica_if_available(enrollment_qset.exclude(id__in=staff_instructor_qset))
+        elif self.target_type == SEND_TO_SELECTED:
+            if not selected:
+                raise ValueError("Must define emails for the selected users to send email.")
+            return use_read_replica_if_available(
+                enrollment_qset.filter(email__in=selected).exclude(id__in=staff_instructor_qset)
+            )
         elif self.target_type == SEND_TO_COHORT:
             return self.cohorttarget.cohort.users.filter(id__in=enrollment_qset)  # pylint: disable=no-member
         else:
@@ -171,15 +179,25 @@ class CourseEmail(Email):
     # to_option is deprecated and unused, but dropping db columns is hard so it's still here for legacy reasons
     to_option = models.CharField(max_length=64, choices=[("deprecated", "deprecated")])
     targets = models.ManyToManyField(Target)
+    selected_emails = CompressedTextField(verbose_name='Selected Emails', blank=True, null=True)
     template_name = models.CharField(null=True, max_length=255)
     from_addr = models.CharField(null=True, max_length=255)
 
     def __unicode__(self):
         return self.subject
 
+    @property
+    def selected(self):
+        """
+        Splits and gets List of selected emails.
+        """
+        if self.selected_emails:
+            return [selected_email for selected_email in self.selected_emails.split(",")]
+        return None
+
     @classmethod
     def create(
-            cls, course_id, sender, targets, subject, html_message,
+            cls, course_id, sender, targets, selected, subject, html_message,
             text_message=None, template_name=None, from_addr=None, cohort_name=None):
         """
         Create an instance of CourseEmail.
@@ -212,6 +230,7 @@ class CourseEmail(Email):
             subject=subject,
             html_message=html_message,
             text_message=text_message,
+            selected_emails=selected,
             template_name=template_name,
             from_addr=from_addr,
         )
