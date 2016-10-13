@@ -593,6 +593,28 @@ def dashboard(request):
 
     message = ""
     if not user.is_active:
+        _enroll_user_in_pending_courses(user)
+        course_enrollments = list(get_course_enrollments(user, course_org_filter, org_filter_out_set))
+        course_enrollments.sort(key=lambda x: x.created, reverse=True)
+
+        # Retrieve the course modes for each course
+        enrolled_course_ids = [enrollment.course_id for enrollment in course_enrollments]
+        __, unexpired_course_modes = CourseMode.all_and_unexpired_modes_for_courses(enrolled_course_ids)
+        course_modes_by_course = {
+            course_id: {
+                mode.slug: mode
+                for mode in modes
+            }
+            for course_id, modes in unexpired_course_modes.iteritems()
+        }
+
+        # Check to see if the student has recently enrolled in a course.
+        # If so, display a notification message confirming the enrollment.
+        enrollment_message = _create_recent_enrollment_message(
+            course_enrollments, course_modes_by_course
+        )
+
+        course_optouts = Optout.objects.filter(user=user).values_list('course_id', flat=True)
         message = render_to_string(
             'registration/activate_account_notice.html',
             {'email': user.email, 'platform_name': platform_name}
