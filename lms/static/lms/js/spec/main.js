@@ -88,7 +88,6 @@
             'js/student_account/account': 'js/student_account/account',
             'js/student_profile/views/learner_profile_fields': 'js/student_profile/views/learner_profile_fields',
             'js/student_profile/views/learner_profile_factory': 'js/student_profile/views/learner_profile_factory',
-            'js/student_profile/identity': 'js/student_profile/identity',
             'js/student_profile/views/learner_profile_view': 'js/student_profile/views/learner_profile_view',
             'js/ccx/schedule': 'js/ccx/schedule',
 
