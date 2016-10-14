@@ -12,6 +12,7 @@ from django.utils.translation import ugettext as _
 from django.utils.timezone import utc
 from django.conf import settings
 from django.http import JsonResponse
+from django.contrib.staticfiles.storage import staticfiles_storage
 from rest_framework import permissions, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -145,6 +146,7 @@ class IdentityProofRemoveView(APIView):
 
 
 def get_identity_proof_url(request):
+    identity_proof_url = staticfiles_storage.url("images/default_id.png")
     if request.user.profile.has_identity_proof:
         proof_base_url = settings.IDENTITY_PROOF_BACKEND['options']['base_url']
 
@@ -154,8 +156,6 @@ def get_identity_proof_url(request):
             exception = request.user.profile.identity_proof_file_extension,
             version_random=randint(100000, 999999)
         )
-    else:
-        identity_proof_url = "/static/themes/moocagency/images/default_id.png"
 
     return identity_proof_url
 
