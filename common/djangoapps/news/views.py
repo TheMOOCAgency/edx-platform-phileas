@@ -14,7 +14,11 @@ from edxmako.shortcuts import render_to_response
 
 from news.models import NewsPage
 from news.pages import create_page, save_page, delete_page
-from news.utils import get_lms_link_for_news
+from news.utils import (
+    get_lms_link_for_news,
+    get_media_link_for_jacket,
+    get_default_jacket_url
+)
 
 
 @login_required
@@ -87,8 +91,7 @@ def news_handler(request, page_id=None):
         if request.method == 'POST':
             page = create_page(request.user)
             return JsonResponse({
-                'page_id': page.id,
-                'page_summary': page.summary
+                'page_id': page.id
             })
         else:
             return JsonResponse({
@@ -144,7 +147,7 @@ def get_news_content(request, page_id=None):
     To get the content for the specified
     page.
 
-    Returns content if page exists and no
+    Returns content and other studio specific details, if page exists and no
     errors. Else return ''
     """
     # Initialize the response dictionary
@@ -158,13 +161,18 @@ def get_news_content(request, page_id=None):
     if page_id:
         try:
             page = NewsPage.objects.get(pk=page_id)
-            content = page.content
         except NewsPage.DoesNotExist:
-            pass
+            return JsonResponse({
+                'error': 'No such page exists.'
+            })
 
     # Return JSON response
     return JsonResponse({
-        'content': content
+        'title': page.title,
+        'summary': page.summary,
+        'content': page.content,
+        'jacket': get_media_link_for_jacket(page),
+        'default_jacket': get_default_jacket_url()
     })
 
 @login_required
