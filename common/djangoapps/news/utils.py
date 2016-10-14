@@ -43,7 +43,7 @@ def get_media_link_for_jacket(page):
     if jacket:
         lms_base = get_lms_base()
 
-        media_link = u"//{lms_base}{jacket}/".format(
+        media_link = u"//{lms_base}{jacket}".format(
             lms_base=lms_base,
             jacket=jacket
         )
