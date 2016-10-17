@@ -19,6 +19,7 @@ from student.views import LogoutView
 from course_progress.api import APICompletionProgress
 from news.api import APINewsPages
 from forum_messages.api import APIForumMessages
+from django.http import HttpResponse
 
 # Uncomment the next two lines to enable the admin:
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
@@ -181,11 +182,16 @@ urlpatterns += (url(
     RedirectView.as_view(url=settings.STATIC_URL + favicon_path, permanent=True)
 ),)
 
+#robots.txt
+urlpatterns += (url(r'^robots.txt', lambda x: HttpResponse("User-Agent: *\nDisallow:", content_type="text/plain"), name="robots_file"),)
+
 # Semi-static views only used by edX, not by themes
 if not settings.FEATURES["USE_CUSTOM_THEME"]:
     urlpatterns += (
         url(r'^blog$', 'static_template_view.views.render',
             {'template': 'blog.html'}, name="blog"),
+        url(r'^cpf$', 'static_template_view.views.render',
+            {'template': 'cpf.html'}, name="cpf"),
         url(r'^contact$', 'static_template_view.views.render',
             {'template': 'contact.html'}, name="contact"),
         url(r'^donate$', 'static_template_view.views.render',
