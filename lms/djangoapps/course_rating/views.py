@@ -46,10 +46,20 @@ def course_ratings_handler(request, course_id):
     # get total number of reviews
     total_reviews = CourseRating.calc_total_reviews(course_id=course_key)
 
+    # ajout geoffrey
+    confirmations = ''
+    ratingConf = CourseRating.objects.filter(student_id=request.user.id,course_id=course_key)
+    if not ratingConf:
+        confirmations = False
+    else:
+        confirmations = True
+    #ratingConfirmation = ratingConf.objects.get(course_id=course_key)
+
     # return json response
     return JsonResponse({
         'avg_ratings': avg_ratings,
         'total_reviews': total_reviews,
         'can_rate': CourseEnrollment.is_enrolled(request.user, course_key) and \
-            not CourseRating.has_rated(student_id=request.user.id, course_id=course_key)
+            not CourseRating.has_rated(student_id=request.user.id, course_id=course_key),
+        'test':confirmations
     })
