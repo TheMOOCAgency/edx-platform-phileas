@@ -286,7 +286,8 @@ class UserProfile(models.Model):
     identity_proof_uploaded_at = models.DateTimeField(null=True, blank=True)
     identity_proof_file_extension = models.CharField(null=True, blank=True, max_length=4)
     is_validator = models.BooleanField(default=0)
-    is_manager = models.BooleanField(default=0)
+    is_manager = models.BooleanField(default=False)
+    rpid = models.CharField(blank=True, null=True, max_length=50, db_index=True)
 
     @property
     def has_profile_image(self):

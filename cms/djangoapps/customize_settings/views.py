@@ -1,5 +1,9 @@
 from django.http import JsonResponse
 
+from django.http import HttpResponse
+
+from edxmako.shortcuts import render_to_string
+
 from django.views.decorators.csrf import csrf_exempt
 
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
@@ -9,6 +13,8 @@ from contentstore.views.course import get_course_and_check_access
 from xmodule.modulestore.django import modulestore
 
 from models.settings.course_metadata import CourseMetadata
+
+from django.core import serializers
 
 @csrf_exempt
 def customize_settings(request,course_key_string):

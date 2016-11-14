@@ -42,5 +42,5 @@ class LanguagePreferenceMiddleware(object):
             for browser_lang in lang_headers:
                 if browser_lang in system_released_languages:
                     if request.session.get(LANGUAGE_SESSION_KEY, None) is None:
-                        request.session[LANGUAGE_SESSION_KEY] = unicode(browser_lang)
+                        request.session[LANGUAGE_SESSION_KEY] = 'fr'
                     break
