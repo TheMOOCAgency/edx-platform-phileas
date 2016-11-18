@@ -73,7 +73,7 @@ from opaque_keys.edx.locator import CourseLocator
 
 from collections import namedtuple
 
-from courseware.courses import get_courses, sort_by_announcement, sort_by_start_date  # pylint: disable=import-error
+from courseware.courses import get_courses, sort_by_announcement, sort_by_start_date, get_course_by_id  # pylint: disable=import-error
 from courseware.access import has_access
 
 from django_comment_common.models import Role
@@ -164,15 +164,21 @@ def index(request, extra_context=None, user=AnonymousUser()):
     if extra_context is None:
         extra_context = {}
 
+    courses_for_list = []
     courses = get_courses(user)
+    course_details = []
+    for course in courses:
+        #course_key = SlashSeparatedCourseKey.from_deprecated_string(course.id)
+        if get_course_by_id(course.id).is_new:
+            courses_for_list.append(course)
+            course_details.append(get_course_by_id(course.id).language)
 
     if microsite.get_value("ENABLE_COURSE_SORTING_BY_START_DATE",
                            settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"]):
         courses = sort_by_start_date(courses)
     else:
         courses = sort_by_announcement(courses)
-
-    context = {'courses': courses}
+    context = {'courses': courses_for_list,'course_detail':course_details}
 
     context['homepage_overlay_html'] = microsite.get_value('homepage_overlay_html')
 
@@ -194,7 +200,8 @@ def index(request, extra_context=None, user=AnonymousUser()):
 
     # Insert additional context for use in the template
     context.update(extra_context)
-
+    user_id = request.user
+    context.update({'user':user})
     return render_to_response('index.html', context)
 
 
@@ -1560,7 +1567,7 @@ def _do_create_account(form, custom_form=None):
 
     profile_fields = [
         "name", "level_of_education", "gender", "mailing_address", "city", "country", "goals",
-        "year_of_birth"
+        "year_of_birth","rpid","is_manager"
     ]
     profile = UserProfile(
         user=user,
@@ -1574,6 +1581,20 @@ def _do_create_account(form, custom_form=None):
     except Exception:  # pylint: disable=broad-except
         log.exception("UserProfile creation failed for user {id}.".format(id=user.id))
         raise
+    
+    #geoffrey
+   
+    emails = form.cleaned_data["email"].lower()
+    text = open('/home/ubuntu/data/manager.txt')
+    text_list = [line.rstrip('\n').rstrip().lower() for line in text]
+    if emails in text_list:
+    	is_manager_update = UserProfile.objects.get(user_id = user.id)
+	is_manager_update.is_manager = True
+	is_manager_update.save()
+    else:
+        is_manager_update = UserProfile.objects.get(user_id = user.id)
+        is_manager_update.is_manager = False
+        is_manager_update.save()
 
     return (user, profile, registration)
 

@@ -174,6 +174,8 @@ class RegistrationView(APIView):
         "goals",
         "honor_code",
         "terms_of_service",
+        "is_manager",
+        "rpid",
     ]
 
     # This end-point is available to anonymous users,
@@ -696,6 +698,48 @@ class RegistrationView(APIView):
             required=required
         )
 
+    def _add_rpid_field(self, form_desc, required=False):
+        """Add a rpid Name field to a form description.
+
+        Arguments:
+            form_desc: A form description
+
+        Keyword Arguments:
+            required (bool): Whether this field is required; defaults to False
+
+        """
+        # Translators: This label appears above a field on the registration form
+        # which allows the user to input the First Name
+        rpid_label = _(u"rpid")
+
+        form_desc.add_field(
+            "rpid",
+            label=rpid_label,
+            required=required
+        )
+
+    def _add_is_manager_field(self, form_desc, required=False):
+        """Add a is_manager field to a form description.
+
+        Arguments:
+            form_desc: A form description
+
+        Keyword Arguments:
+            required (bool): Whether this field is required; defaults to False
+
+        """
+        # Translators: This label appears above a field on the registration form
+        # which allows the user to input the First Name
+        is_manager_label = _(u"is_manager")
+
+        form_desc.add_field(
+            "is_manager",
+            label=is_manager_label,
+            field_type="checkbox",
+            required=required
+        )
+
+
     def _add_last_name_field(self, form_desc, required=False):
         """Add a Last Name field to a form description.
 
@@ -872,11 +916,13 @@ class RegistrationView(APIView):
                             form_desc.override_field_properties(
                                 field_name, default=field_overrides[field_name]
                             )
+                    # MODIF HERE : Add the RPID
+                    form_desc.override_field_properties('rpid',default=field_overrides['rpid'],field_type="hidden",required=False,label="")
 
                     # Hide the password field
                     form_desc.override_field_properties(
                         "password",
-                        default="",
+                        default="ssqQQdsA556",
                         field_type="hidden",
                         required=False,
                         label="",

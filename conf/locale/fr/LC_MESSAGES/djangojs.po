@@ -7191,13 +7191,26 @@ msgstr "Une erreur est survenue. Merci de rafraîchir la page."
 
 #: lms/templates/student_account/form_field.underscore
 msgid "Forgot password?"
-msgstr "Mot de passe oublié?"
+msgstr "Mot de passe oublié ?"
 
 #: lms/templates/student_account/hinted_login.underscore
 #: lms/templates/student_account/login.underscore
 #: lms/templates/student_account/register.underscore
 msgid "Sign in"
 msgstr "Se connecter"
+
+#: lms/templates/student_account/hinted_login.underscore
+#: lms/templates/student_account/login.underscore
+#: lms/templates/student_account/register.underscore
+msgid "SIGN IN"
+msgstr "SE CONNECTER"
+
+#: lms/templates/student_account/hinted_login.underscore
+#: lms/templates/student_account/login.underscore
+#: lms/templates/student_account/register.underscore
+msgid "sign in"
+msgstr "se connecter"
+
 
 #: lms/templates/student_account/hinted_login.underscore
 #, python-format
@@ -9198,3 +9211,33 @@ msgstr ""
 #: cms/templates/js/video/transcripts/messages/transcripts-use-existing.underscore
 msgid "Use Current Transcript"
 msgstr ""
+
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
+#. Translators: this is a message from the raw HTML editor displayed in the
+#. browser when a user needs to edit HTML
+#: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: lms/templates/discovery/course_card.underscore
+
+msgid "show more"
+msgstr "en savoir plus"
+
+msgid "SHOW MORE"
+msgstr "EN SAVOIR PLUS"
+
+msgid "All courses"
+msgstr "Tous les cours"
+
+msgid "Home"
+msgstr "Acceuil"
+
+msgid "Courses Catalogue"
+msgstr "Catalogue de Cours"
+
+msgid "All formations"
+msgstr "Toutes les formations"
+
+msgid "More courses"
+msgstr "Plus de cours"
+
+
+

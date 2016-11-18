@@ -100,7 +100,7 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import ItemNotFoundError, DuplicateCourseError
 from xmodule.tabs import CourseTab, CourseTabList, InvalidTabsException
 
-
+from pprint import pformat
 log = logging.getLogger(__name__)
 
 __all__ = ['course_info_handler', 'course_handler', 'course_listing',
@@ -254,6 +254,7 @@ def course_handler(request, course_key_string=None):
     try:
         response_format = request.GET.get('format') or request.POST.get('format') or 'html'
         if response_format == 'json' or 'application/json' in request.META.get('HTTP_ACCEPT', 'application/json'):
+            log.info("JSON in the request"+pformat(request.GET.get('format'))+" "+pformat(request.POST.get('format'))+" "+pformat(request.META.get('HTTP_ACCEPT', 'application/json')))
             if request.method == 'GET':
                 course_key = CourseKey.from_string(course_key_string)
                 with modulestore().bulk_operations(course_key):
@@ -270,6 +271,7 @@ def course_handler(request, course_key_string=None):
             else:
                 return HttpResponseBadRequest()
         elif request.method == 'GET':  # assume html
+            log.info("NO JSON in the request")
             if course_key_string is None:
                 return redirect(reverse("home"))
             else:

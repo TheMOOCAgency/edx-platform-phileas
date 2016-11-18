@@ -83,7 +83,8 @@ import student
 from logging import getLogger
 
 from . import provider
-
+#MODIF HERE
+from pprint import pformat
 
 # These are the query string params you can pass
 # to the URL that starts the authentication process.
@@ -522,6 +523,7 @@ def ensure_user_information(strategy, auth_entry, backend=None, user=None, socia
     def should_force_account_creation():
         """ For some third party providers, we auto-create user accounts """
         current_provider = provider.Registry.get_from_pipeline({'backend': backend.name, 'kwargs': kwargs})
+        #logger.warning("MODIF HERE: should_force_account_creation?"+pformat(current_provider)+pformat(current_provider.skip_email_verification))
         return current_provider and current_provider.skip_email_verification
 
     if not user:
@@ -531,6 +533,7 @@ def ensure_user_information(strategy, auth_entry, backend=None, user=None, socia
             # User has authenticated with the third party provider but we don't know which edX
             # account corresponds to them yet, if any.
             if should_force_account_creation():
+                #logger.warning("MODIF HERE: need to dispatch to regsiter")
                 return dispatch_to_register()
             return dispatch_to_login()
         elif auth_entry == AUTH_ENTRY_REGISTER:
