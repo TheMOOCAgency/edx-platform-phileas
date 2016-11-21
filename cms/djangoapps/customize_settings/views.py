@@ -25,7 +25,8 @@ def customize_settings(request,course_key_string):
         additional_info = {
         'is_new': request.POST.get('is_new', False),
         'invitation_only': request.POST.get('invitation_only', False),
-        'manager_only': request.POST.get('manager_only', False)
+        'manager_only': request.POST.get('manager_only', False),
+        'grade_badge': request.POST.get('grade_badge', 60)
         }
         CourseMetadata.update_from_dict(additional_info, course_module, request.user)
         return JsonResponse({'data':'data'})
