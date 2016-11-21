@@ -570,6 +570,8 @@ class CourseAboutSearchIndexer(object):
         AboutInfo("modes", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_MODE),
         AboutInfo("language", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_PROPERTY),
         AboutInfo("manager_only", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_PROPERTY),
+        #geoffrey
+        AboutInfo("grade_badge", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_PROPERTY),
 
     ]
 

@@ -22,7 +22,7 @@ define([
         });
 
         it('adds filter', function () {
-            expect(this.filterBar.$el.find('button')).toHaveData('type', 'org');
+          expect(this.filterBar.$el.find('button')).toHaveData('type', 'org'); 
         });
 
         it('removes filter', function () {

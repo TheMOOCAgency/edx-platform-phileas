@@ -18,8 +18,10 @@ from util import milestones_helpers
 from util.db import outer_atomic
 from util.model_utils import slugify
 
+from course_progress.models import StudentCourseProgress
 
-def prepare_chapters_with_grade(request, course):
+
+def prepare_chapters_with_progress(request, course):
     '''
     Create chapters with grade details.
 
@@ -40,17 +42,21 @@ def prepare_chapters_with_grade(request, course):
     '''
     student = request.user
 
-    with outer_atomic():
-        field_data_cache = grades.field_data_cache_for_grading(course, student)
-        scores_client = ScoresClient.from_field_data_cache(field_data_cache)
+    # find the course progress
+    progress = get_course_progress(student, course.id)
 
-    courseware_summary = grades.progress_summary(
-        student, request, course, field_data_cache=field_data_cache, scores_client=scores_client
+    # Get the field data cache
+    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(
+        course.id, student, course, depth=2,
     )
 
-    # find the passing grade for the course
-    nonzero_cutoffs = [cutoff for cutoff in course.grade_cutoffs.values() if cutoff > 0]
-    success_cutoff = min(nonzero_cutoffs) * 100 if nonzero_cutoffs else 0
+    # Get the course module
+    with modulestore().bulk_operations(course.id):
+        course_module = get_module_for_descriptor(
+            student, request, course, field_data_cache, course.id, course=course
+        )
+        if course_module is None:
+            return []
 
     # get the courseware position where left off
     active_section = None
@@ -60,26 +66,22 @@ def prepare_chapters_with_grade(request, course):
 
     chapters = []
     section_index = 0
-    for chapter in courseware_summary:
-        if not chapter['display_name'] == "hidden":
-            sections = []
-            for section in chapter['sections']:
-                section_index += 1
-                earned = section['section_total'].earned
-                total = section['section_total'].possible
-                percentage = earned * 100 / total if earned > 0 and total > 0 else 0
-                sections.append({
-                    'section_index': section_index,
-                    'display_name': section['display_name'],
-                    'url_name': section['url_name'],
-                    'passed': success_cutoff and percentage >= success_cutoff,
-                    'paused': active_section and (section['url_name'] == active_section.url_name)
-                })
-            chapters.append({
-                'display_name': chapter['display_name'],
-                'url_name': chapter['url_name'],
-                'sections': sections
+    for chapter in course_module.get_display_items():
+        sections = []
+        for sequential in chapter.get_display_items():
+            section_index += 1
+            sections.append({
+                'section_index': section_index,
+                'display_name': sequential.display_name_with_default_escaped,
+                'url_name': sequential.url_name,
+                'passed': has_passed(str(sequential.location), progress),
+                'paused': active_section and (sequential.url_name == active_section.url_name)
             })
+        chapters.append({
+            'display_name': chapter.display_name_with_default_escaped,
+            'url_name': chapter.url_name,
+            'sections': sections
+        })
 
     return chapters
 
@@ -90,7 +92,7 @@ def render_accordion(request, course):
     including which ones are completed.
     """
     context = {
-        'chapters': prepare_chapters_with_grade(request, course),
+        'chapters': prepare_chapters_with_progress(request, course),
         'course_id': unicode(course.id),
         'csrf': csrf(request)['csrf_token'],
     }
@@ -128,3 +130,21 @@ def get_last_accessed_section(chapter):
     """
     return get_current_child(chapter, min_depth=None, requested_child=None)
 
+def get_course_progress(student, course_key):
+    progress = {}
+
+    try:
+        course_progress = StudentCourseProgress.objects.get(student=student.id, course_id=course_key)
+        progress = course_progress.progress
+    except StudentCourseProgress.DoesNotExist:
+        pass
+
+    return progress
+
+def has_passed(module_id, course_progress):
+    """
+    Author: Naresh Makwana
+    """
+    module_progress = course_progress.get(module_id, {})
+
+    return int(module_progress.get('progress', 0)) == 100

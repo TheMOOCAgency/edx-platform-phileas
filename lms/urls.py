@@ -1140,7 +1140,16 @@ if settings.FEATURES.get('TMA_ENABLE_FINAL_GRADES_API'):
             name='grades_api'
         ),
     )
-
+#get manager status
+    urlpatterns += (
+        url(
+            r'^manager/{}/$'.format(
+                settings.COURSE_ID_PATTERN,
+            ),
+            'final_grades.api.get_api_manager',
+            name='grades_api_manager'
+        ),
+    )
 # assignment_passing_status
 urlpatterns += (
     url(

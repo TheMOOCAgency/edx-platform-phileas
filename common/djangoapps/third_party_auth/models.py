@@ -193,11 +193,13 @@ class ProviderConfig(ConfigurationModel):
         # creation of the user object, so it is still possible for users to get
         # an error on submit.
         suggested_username = pipeline_kwargs.get('username')
-
+        # MODIF HERE : Add the RPID
+        #    'rpid': details.get('rpid', ''),
         return {
             'email': details.get('email', ''),
             'name': details.get('fullname', ''),
             'username': suggested_username,
+            'rpid': details.get('rpid', ''),
         }
 
     def get_authentication_backend(self):

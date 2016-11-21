@@ -77,7 +77,7 @@ from openedx.core.djangoapps.credit.api import (
 from openedx.core.djangoapps.theming import helpers as theming_helpers
 from shoppingcart.utils import is_shopping_cart_enabled
 from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
-from student.models import UserTestGroup, CourseEnrollment
+from student.models import UserTestGroup, CourseEnrollment, UserProfile
 from student.roles import GlobalStaff
 from util.cache import cache, cache_if_anonymous
 from util.date_utils import strftime_localized
@@ -136,6 +136,12 @@ def courses(request):
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
         courses_list = get_courses(request.user)
+        newcourse_list = []
+        for coursese in courses_list:
+            with modulestore().bulk_operations(coursese.id):
+                permission = get_permission_for_course_about()
+                course = get_course_by_id(coursese.id)
+                newcourse_list.append(course)
 
         if theming_helpers.get_value(
                 "ENABLE_COURSE_SORTING_BY_START_DATE",
@@ -620,7 +626,10 @@ def course_about(request, course_id):
 
         # Overview
         overview = CourseOverview.get_from_id(course.id)
-
+        """
+        GEOFFREY manager only
+        """
+        manager_only = get_course_by_id(course.id).manager_only
         # Added by Chintan Joshi for enrollment_workflow
         enrollment_workflow = overview.enrollment_workflow
         if enrollment_workflow == "enp":
@@ -632,9 +641,18 @@ def course_about(request, course_id):
         except:
             enrollment_status = None
         # End
-
+        """
+        GEOFFREY AJOUT IS_MANAGER
+        """
+	if request.user.is_authenticated():
+        	student_id = request.user.id
+        	is_manager = UserProfile.objects.get(user_id=student_id).is_manager
+	else:
+		is_manager = False
         context = {
             'course': course,
+            'is_manager': is_manager,
+            "manager_only": manager_only,
             'course_details': course_details,
             'staff_access': staff_access,
             'studio_url': studio_url,

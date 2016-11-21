@@ -640,6 +640,13 @@ class CourseFields(object):
         scope=Scope.settings
     )
 
+    grade_badge = Integer(
+        display_name=_("Grade Badge"),
+        help=_("Value validation badge"),
+        default=100,
+        scope=Scope.settings
+    )
+
     course_survey_name = String(
         display_name=_("Pre-Course Survey Name"),
         help=_("Name of SurveyForm to display as a pre-course survey to the user."),

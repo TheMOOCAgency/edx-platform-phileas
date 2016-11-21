@@ -270,6 +270,7 @@ def course_handler(request, course_key_string=None):
             else:
                 return HttpResponseBadRequest()
         elif request.method == 'GET':  # assume html
+            log.info("no json")
             if course_key_string is None:
                 return redirect(reverse("home"))
             else:
@@ -1292,6 +1293,7 @@ def customize_settings_handler(request, course_key_string):
                 'is_new':course_module.is_new,
                 'invitation_only': course_module.invitation_only,
                 'manager_only': course_module.manager_only,
+                'grade_badge': course_module.grade_badge,
             })
         elif 'application/json' in request.META.get('HTTP_ACCEPT', ''):
             if request.method == 'GET':

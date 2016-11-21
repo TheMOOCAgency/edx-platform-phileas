@@ -1,5 +1,9 @@
 from django.http import JsonResponse
 
+from django.http import HttpResponse
+
+from edxmako.shortcuts import render_to_string
+
 from django.views.decorators.csrf import csrf_exempt
 
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
@@ -10,6 +14,8 @@ from xmodule.modulestore.django import modulestore
 
 from models.settings.course_metadata import CourseMetadata
 
+from django.core import serializers
+
 @csrf_exempt
 def customize_settings(request,course_key_string):
 
@@ -19,7 +25,8 @@ def customize_settings(request,course_key_string):
         additional_info = {
         'is_new': request.POST.get('is_new', False),
         'invitation_only': request.POST.get('invitation_only', False),
-        'manager_only': request.POST.get('manager_only', False)
+        'manager_only': request.POST.get('manager_only', False),
+        'grade_badge': request.POST.get('grade_badge', 100)
         }
         CourseMetadata.update_from_dict(additional_info, course_module, request.user)
         return JsonResponse({'data':'data'})

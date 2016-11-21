@@ -224,7 +224,7 @@ if settings.FEATURES.get('TMA_ENABLE_PLATFORM_WIDE_NEWS'):
         url(r'^reorder_news/$', 'news.views.reorder_news_handler', name="reorder_news_handler"),
         url(r'^news_visibility/(?P<page_id>[0-9]*)/$', 'news.views.news_visibility_handler', name="news_visibility_handler"),
     )
-    
+
 urlpatterns += (
     url(r'^update_course/{}$'.format(settings.COURSE_KEY_PATTERN),'customize_settings.views.customize_settings', name="course_update"),
 )
