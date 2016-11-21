@@ -93,6 +93,7 @@ class CourseOverview(TimeStampedModel):
     enrollment_workflow = TextField(null=True)
     invitation_only = BooleanField(default=False)
     manager_only = BooleanField(default=False)
+    grade_badge = IntegerField(default=60)
     max_student_enrollments_allowed = IntegerField(null=True)
 
     # Catalog information

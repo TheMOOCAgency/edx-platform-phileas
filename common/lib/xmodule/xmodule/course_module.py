@@ -633,6 +633,13 @@ class CourseFields(object):
         scope=Scope.settings
     )
 
+    grade_badge = Integer(
+        display_name=_("grade_badge"),
+        help=_("grade_badge value"),
+        default=60,
+        scope=Scope.settings
+    )
+
     manager_only = Boolean(
         display_name=_("Managers Only"),
         help=_("Whether to restrict course to managers."),

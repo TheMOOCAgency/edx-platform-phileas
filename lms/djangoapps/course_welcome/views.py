@@ -70,9 +70,9 @@ def course_welcome(request, course_id):
     }
     if settings.TMA_WELCOME_PAGE_NAME == 'purple':
         # Get the final score for the student
-        score = get_final_score(request, course)
+        max_score = get_course_by_id(course_key).grade_badge    
         # Set badge if the score is greater or equal to 60%
-        badge = score >= 60
+        badge = score >= max_score
         # update context
         context.update({
             'score': score,
