@@ -94,6 +94,8 @@ from ..entrance_exams import user_must_complete_entrance_exam
 from ..module_render import get_module_for_descriptor, get_module, get_module_by_usage_id
 
 from enrollment_workflow.models import RequestEnroll
+#vodeclic
+from courseware.vodeclic import get_vodeclic_href
 
 log = logging.getLogger("edx.courseware")
 
@@ -134,6 +136,8 @@ def courses(request):
     """
     courses_list = []
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
+    #vodeclic
+    href_sso = get_vodeclic_href(request.user)
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
         courses_list = get_courses(request.user)
         newcourse_list = []
@@ -153,7 +157,7 @@ def courses(request):
 
     return render_to_response(
         "courseware/courses.html",
-        {'courses': courses_list, 'course_discovery_meanings': course_discovery_meanings}
+        {'courses': courses_list, 'course_discovery_meanings': course_discovery_meanings,'href_sso':href_sso}
     )
 
 
@@ -650,6 +654,7 @@ def course_about(request, course_id):
 	else:
 		is_manager = False
         context = {
+	    'all':get_course_by_id(course.id),
             'course': course,
             'is_manager': is_manager,
             "manager_only": manager_only,

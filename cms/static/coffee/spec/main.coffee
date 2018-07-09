@@ -53,7 +53,7 @@ requirejs.config({
         "afontgarde": "edx-pattern-library/js/afontgarde",
         "edxicons": "edx-pattern-library/js/edx-icons",
 
-        "mathjax": "//cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_SVG&delayStartupUntil=configured",
+        "mathjax": "//cdnjs.cloudflare.com/ajax/libs/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_SVG&delayStartupUntil=configured",
         "youtube": "//www.youtube.com/player_api?noext",
 
         "coffee/src/ajax_prefix": "xmodule_js/common_static/coffee/src/ajax_prefix",

@@ -10,6 +10,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
+from django.db import transaction
+
 from edxmako.shortcuts import render_to_response
 
 from news.models import NewsPage
@@ -51,6 +53,7 @@ def news_outline(request):
 
 @login_required
 @ensure_csrf_cookie
+@transaction.non_atomic_requests
 @require_http_methods(("DELETE", "POST"))
 def news_handler(request, page_id=None):
     """

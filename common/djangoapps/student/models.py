@@ -231,7 +231,7 @@ class UserProfile(models.Model):
     # Sanitize all fields.
     # This is not visible to other users, but could introduce holes later
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
-    name = models.CharField(blank=True, max_length=255, db_index=True)
+    #name = models.CharField(blank=True, max_length=255, db_index=True)
 
     meta = models.TextField(blank=True)  # JSON dictionary for future expansion
     courseware = models.CharField(blank=True, max_length=255, default='course.xml')

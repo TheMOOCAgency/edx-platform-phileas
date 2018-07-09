@@ -127,6 +127,8 @@ from openedx.core.djangoapps.theming import helpers as theming_helpers
 
 from recaptcha.views import recaptcha_verified
 
+#vodeclic
+from vodeclic import get_vodeclic_href
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -201,7 +203,13 @@ def index(request, extra_context=None, user=AnonymousUser()):
     # Insert additional context for use in the template
     context.update(extra_context)
     user_id = request.user
+    #vodeclic
+    href_sso = get_vodeclic_href(user)
+    all_active_user = User.objects.filter(is_active = 1,).count()
     context.update({'user':user})
+    #vodeclic
+    context['href_sso'] = href_sso
+    context['all_active_user'] = all_active_user
     return render_to_response('index.html', context)
 
 
@@ -740,6 +748,8 @@ def dashboard(request):
         redirect_message = ''
 
     context = {
+        #vodeclic
+        'href_sso': get_vodeclic_href(request.user),
         'enrollment_message': enrollment_message,
         'redirect_message': redirect_message,
         'course_enrollments': course_enrollments,
@@ -1566,7 +1576,7 @@ def _do_create_account(form, custom_form=None):
     registration.register(user)
 
     profile_fields = [
-        "name", "level_of_education", "gender", "mailing_address", "city", "country", "goals",
+         "level_of_education", "gender", "mailing_address", "city", "country", "goals",
         "year_of_birth","rpid","is_manager"
     ]
     profile = UserProfile(
@@ -1581,19 +1591,21 @@ def _do_create_account(form, custom_form=None):
     except Exception:  # pylint: disable=broad-except
         log.exception("UserProfile creation failed for user {id}.".format(id=user.id))
         raise
-    
+
     #geoffrey
-   
+    
     emails = form.cleaned_data["email"].lower()
     text = open('/home/ubuntu/data/manager.txt')
     text_list = [line.rstrip('\n').rstrip().lower() for line in text]
     if emails in text_list:
     	is_manager_update = UserProfile.objects.get(user_id = user.id)
 	is_manager_update.is_manager = True
+	is_manager_update.year_of_birth = 1900
 	is_manager_update.save()
     else:
         is_manager_update = UserProfile.objects.get(user_id = user.id)
         is_manager_update.is_manager = False
+	is_manager_update.year_of_birth = 1900
         is_manager_update.save()
 
     return (user, profile, registration)

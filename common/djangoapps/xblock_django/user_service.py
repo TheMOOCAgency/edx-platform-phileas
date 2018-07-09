@@ -60,7 +60,10 @@ class DjangoXBlockUserService(UserService):
         if django_user is not None and django_user.is_authenticated():
             # This full_name is dependent on edx-platform's profile implementation
             if hasattr(django_user, 'profile'):
-                full_name = django_user.profile.name
+                if hasattr(django_user.profile, 'name'):
+                    full_name = django_user.profile.name
+                else:
+                    full_name = None
             else:
                 full_name = None
             xblock_user.full_name = full_name
