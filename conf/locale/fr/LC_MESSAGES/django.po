@@ -7502,8 +7502,20 @@ msgstr "Commencer la formation"
 msgid "Legal notices"
 msgstr "Mentions légales"
 
+msgid "Submissions allowed"
+msgstr "Essais autorisés"
 
+msgid "Submission used"
+msgstr "Essai utilisé"
 
+msgid "Submissions used"
+msgstr "Essais utilisés"
 
+msgid "Submission allowed"
+msgstr "Essai autorisé"
 
+msgid "Incorrect answer"
+msgstr "Mauvaise réponse"
 
+msgid "Hint ({hint_num} of {hints_count}): "
+msgstr "Indice ({hint_num} sur {hints_count}): "

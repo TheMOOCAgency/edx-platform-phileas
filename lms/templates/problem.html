@@ -10,7 +10,13 @@ from openedx.core.djangolib.markup import HTML
 </h3>
 
 <div class="problem-progress"></div>
-
+% if attempts_allowed :
+  % if attempts_allowed>1 :
+  <div class="attempts_tma" data-remainingattp="${attempts_allowed-attempts_used}">${attempts_used} ${_('Submissions used')} / ${attempts_allowed} ${_('Submissions allowed')}</div>
+  % elif attempts_allowed==1:
+  <div class="attempts_tma" data-remainingattp="${attempts_allowed-attempts_used}">${attempts_used} ${_('Submission used')} / ${attempts_allowed} ${_('Submission allowed')}</div>
+  %endif
+%endif
 <div class="problem">
     <div aria-live="polite">
         ${ HTML(problem['html']) }
@@ -36,6 +42,9 @@ from openedx.core.djangolib.markup import HTML
     <button class="show"><span class='sr'>${_('Toggle Answer Visibility')}</span><span class="show-label">${_('Show Answer')}</span></button>
     % endif
     % if attempts_allowed :
+    <div class="bad_answer_tma">
+      ${_('Incorrect answer')}
+    </div>
     <div class="submission_feedback" aria-live="polite">
       ${_("You have used {num_used} of {num_total} submissions").format(num_used=attempts_used, num_total=attempts_allowed)}
     </div>
