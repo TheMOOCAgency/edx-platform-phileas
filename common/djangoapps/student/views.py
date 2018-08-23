@@ -199,6 +199,9 @@ def index(request, extra_context=None, user=AnonymousUser()):
     context['courses_list'] = microsite.get_template_path('courses_list.html')
 
     # Insert additional context for use in the template
+    #compteur    
+    all_active_user = User.objects.filter(is_active = 1,).count()
+    context['all_active_user'] = all_active_user
     context.update(extra_context)
     user_id = request.user
     context.update({'user':user})
@@ -1590,10 +1593,12 @@ def _do_create_account(form, custom_form=None):
     if emails in text_list:
     	is_manager_update = UserProfile.objects.get(user_id = user.id)
 	is_manager_update.is_manager = True
+	is_manager_update.year_of_birth = 1900
 	is_manager_update.save()
     else:
         is_manager_update = UserProfile.objects.get(user_id = user.id)
         is_manager_update.is_manager = False
+	is_manager_update.year_of_birth = 1900
         is_manager_update.save()
 
     return (user, profile, registration)

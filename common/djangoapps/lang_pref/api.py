@@ -31,7 +31,7 @@ def released_languages():
 
     """
     released_language_codes = DarkLangConfig.current().released_languages_list
-    default_language_code = 'fr'
+    default_language_code = settings.LANGUAGE_CODE
 
     if default_language_code not in released_language_codes:
         released_language_codes.append(default_language_code)

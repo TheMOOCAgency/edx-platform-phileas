@@ -7308,7 +7308,7 @@ msgid "sort by"
 msgstr "trier par"
 
 msgid "Softwares"
-msgstr "Bureautique"
+msgstr "Logiciels"
 
 msgid "Asset Management"
 msgstr "Gestion d’actifs"
